@@ -178,6 +178,19 @@ void(entity statsController, float distance) addDistance=
 	statsController.distance_travelled = statsController.distance_travelled + distance;
 }
 
+void() printWeaponTimes=
+{	  
+	sprint(self.owner,"weapon hold times a:"); sprint(self.owner,ftos( self.axe_time )); 
+	sprint(self.owner," s:"); sprint(self.owner,ftos( self.shotgun_time )); 
+	sprint(self.owner," ss:"); sprint(self.owner,ftos( self.sshotgun_time )); 
+	sprint(self.owner," n:"); sprint(self.owner,ftos( self.nailgun_time )); 
+	sprint(self.owner," sn:"); sprint(self.owner,ftos( self.snailgun_time )); 
+	sprint(self.owner," g:"); sprint(self.owner,ftos( self.grenade_time )); 
+	sprint(self.owner," r:"); sprint(self.owner,ftos( self.rocket_time )); 
+	sprint(self.owner," l:"); sprint(self.owner,ftos( self.lightning_time )); 
+	sprint(self.owner,"\n");
+}
+
 
 void() printHitsMisses=
 {	  
@@ -192,7 +205,7 @@ void() printHitsMisses=
 	sprint(self.owner,"\n");
 }
 
-void() printAll=
+void() printMisc=
 {
 	sprint(self.owner,"dmg dealt: ");
 	sprint(self.owner,ftos(self.damage_done));
@@ -204,15 +217,21 @@ void() printAll=
 	sprint(self.owner,ftos(self.times_died));
 	sprint(self.owner," dist: ");
 	sprint(self.owner,ftos( self.distance_travelled ));
-	sprint(self.owner," shots hit/ttl: ");
-	sprint(self.owner,ftos( getTotalHits(self) ));
-	sprint(self.owner,"/");
-	sprint(self.owner,ftos( getTotalShotsFired(self) ));
 	sprint(self.owner,"\n");
+}
+
+void() printAll=
+{
+	sprint(self.owner," Player Report: ");
+	sprint(self.owner, self.owner.netname);
+	sprint(self.owner,"\n==================\n");
+	printHitsMisses();
+	printWeaponTimes();
+	printMisc();
 }
 void() statsThink=
 {
-	printHitsMisses();
+
 	
 	self.think = statsThink;
 	self.nextthink = time + 0.1;

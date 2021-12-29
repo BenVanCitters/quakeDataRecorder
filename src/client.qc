@@ -914,6 +914,7 @@ PlayerPreThink
 Called every frame before physics are run
 ================
 */
+.float lastUpdateTime;
 void() PlayerPreThink =
 {
 
@@ -964,6 +965,8 @@ void() PlayerPreThink =
 	//record how far the player has moved
 	if(self.oldorigin != '0 0 0')
 	{ addDistance(self.statsController, vlen(self.origin-self.oldorigin)); }
+	addWeaponTime( self.statsController, time-self.lastUpdateTime );
+	self.lastUpdateTime = time;
 };
 
 /*
