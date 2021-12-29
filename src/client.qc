@@ -1169,6 +1169,7 @@ called when a player connects to a server
 */
 void() ClientConnect =
 {
+	spawnStatsController();
 	bprint (self.netname);
 	bprint (" entered the game\n");
 

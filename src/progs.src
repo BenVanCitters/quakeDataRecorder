@@ -1,10 +1,11 @@
-../progs.dat
+./progs_folder/progs.dat
 
 defs.qc
 subs.qc
 maps.qc
 fight.qc
 ai.qc
+playerStats.qc
 combat.qc
 items.qc
 weapons.qc
