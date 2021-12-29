@@ -959,6 +959,10 @@ void() PlayerPreThink =
 		self.weapon = W_BestWeapon ();
 		W_SetCurrentAmmo ();
 	}
+	
+	
+	//record how far the player has moved
+	addDistance(self.statsController, vlen(self.origin-self.oldorigin));
 };
 
 /*

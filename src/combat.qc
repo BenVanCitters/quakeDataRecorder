@@ -163,17 +163,29 @@ void(entity targ, entity inflictor, entity attacker, float damage) T_Damage=
 		}
 		return;
 	}
-
+	local float targ_is_player, attacker_is_player;
+	targ_is_player = ( targ.classname == "player");
+	attacker_is_player = ( attacker.classname == "player");
+	
 // team play damage avoidance
-	if ( (teamplay == 1) && ( (coop && targ.classname == "player" && attacker.classname == "player") || (targ.team > 0 && targ.team == attacker.team)) && targ != attacker )
+	if ( (teamplay == 1) && ( (coop && targ_is_player && attacker_is_player) || (targ.team > 0 && targ.team == attacker.team)) && targ != attacker )
 		return;
-
+	
+	if(targ_is_player)
+	{ recordDamageReceived(targ.statsController,take); }
+	
+	if(attacker_is_player)
+	{ recordDamageDealt(attacker.statsController,take); }
 // do the damage
 	targ.health = targ.health - take;
 
 	if (targ.health <= 0)
 	{
 		Killed (targ, attacker);
+		if(targ_is_player)
+		{ recordDied(targ.statsController); }
+		if(attacker_is_player)
+		{ recordKill(attacker.statsController); }
 		return;
 	}
 

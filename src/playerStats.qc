@@ -47,6 +47,7 @@ void(entity statsController, float distance) addDistance=
 
 void() statsThink=
 {
+	
 	sprint(self.owner,"dmg dealt: ");
 	sprint(self.owner,ftos(self.damage_done));
 	sprint(self.owner,", recvd: ");
@@ -55,6 +56,8 @@ void() statsThink=
 	sprint(self.owner,ftos(self.kills));
 	sprint(self.owner,"/");
 	sprint(self.owner,ftos(self.times_died));
+	sprint(self.owner," diff: ");
+	sprint(self.owner,ftos( self.distance_travelled ));
 	sprint(self.owner,"\n");
 	self.think = statsThink;
 	self.nextthink = time + 0.1;
