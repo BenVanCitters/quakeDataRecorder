@@ -962,7 +962,8 @@ void() PlayerPreThink =
 	
 	
 	//record how far the player has moved
-	addDistance(self.statsController, vlen(self.origin-self.oldorigin));
+	if(self.oldorigin != '0 0 0')
+	{ addDistance(self.statsController, vlen(self.origin-self.oldorigin)); }
 };
 
 /*
