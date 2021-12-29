@@ -39,6 +39,7 @@ void() W_FireAxe =
 	local	vector	source;
 	local	vector	org;
 
+	recordShotFired(self.statsController);
 	makevectors (self.v_angle);
 	source = self.origin + '0 0 16';
 	traceline (source, source + v_forward*64, FALSE, self);
@@ -52,6 +53,7 @@ void() W_FireAxe =
 		trace_ent.axhitme = 1;
 		SpawnBlood (org, '0 0 0', 20);
 		T_Damage (trace_ent, self, self, 20);
+		addWeaponHit(self.statsController);
 	}
 	else
 	{	// hit wall
@@ -236,6 +238,7 @@ void(float shotcount, vector dir, vector spread) FireBullets =
 {
 	local	vector direction;
 	local	vector	src;
+	local float hit=FALSE;
 
 	makevectors(self.v_angle);
 
@@ -248,6 +251,12 @@ void(float shotcount, vector dir, vector spread) FireBullets =
 		direction = dir + crandom()*spread_x*v_right + crandom()*spread_y*v_up;
 
 		traceline (src, src + direction*2048, FALSE, self);
+		if (trace_ent.takedamage && !hit)
+		{
+			hit = TRUE;
+			if(self.classname == "player")
+			{addWeaponHit(self.statsController);}
+		}
 		if (trace_fraction != 1.0)
 			TraceAttack (4, direction);
 
@@ -272,6 +281,7 @@ void() W_FireShotgun =
 	self.currentammo = self.ammo_shells = self.ammo_shells - 1;
 	dir = aim (self, 100000);
 	FireBullets (6, dir, '0.04 0.04 0');
+	recordShotFired(self.statsController);
 };
 
 
@@ -297,6 +307,7 @@ void() W_FireSuperShotgun =
 	self.currentammo = self.ammo_shells = self.ammo_shells - 2;
 	dir = aim (self, 100000);
 	FireBullets (14, dir, '0.14 0.08 0');
+	recordShotFired(self.statsController);
 };
 
 
@@ -345,6 +356,8 @@ void() T_MissileTouch =
 		if (other.classname == "monster_shambler")
 			damg = damg * 0.5;	// mostly immune
 		T_Damage (other, self, self.owner, damg );
+		if(self.owner.classname == "player")
+		{addWeaponHit(self.owner.statsController);}
 	}
 
 	// don't do radius damage to the other, because all the damage
@@ -402,6 +415,7 @@ void() W_FireRocket =
 	setmodel (missile, "progs/missile.mdl");
 	setsize (missile, '0 0 0', '0 0 0');
 	setorigin (missile, self.origin + v_forward*8 + '0 0 16');
+	recordShotFired(self.statsController);
 };
 
 /*
@@ -421,6 +435,7 @@ void(vector p1, vector p2, entity from, float damage) LightningDamage =
 {
 	local entity		e1, e2;
 	local vector		f;
+	local float hit = FALSE;
 
 	f = p2 - p1;
 	normalize (f);
@@ -433,11 +448,12 @@ void(vector p1, vector p2, entity from, float damage) LightningDamage =
 
 	traceline (p1, p2, FALSE, self);
 	if (trace_ent.takedamage)
-	{
+	{	
 		particle (trace_endpos, '0 0 100', 225, damage*4);
 		T_Damage (trace_ent, from, from, damage);
 		if (self.classname == "player")
-		{
+		{			
+			hit = TRUE;
 			if (other.classname == "player")
 				trace_ent.velocity_z = trace_ent.velocity_z + 400;
 		}
@@ -449,6 +465,8 @@ void(vector p1, vector p2, entity from, float damage) LightningDamage =
 	{
 		particle (trace_endpos, '0 0 100', 225, damage*4);
 		T_Damage (trace_ent, from, from, damage);
+		hit = TRUE;
+		
 	}
 	e2 = trace_ent;
 
@@ -457,7 +475,10 @@ void(vector p1, vector p2, entity from, float damage) LightningDamage =
 	{
 		particle (trace_endpos, '0 0 100', 225, damage*4);
 		T_Damage (trace_ent, from, from, damage);
+		hit = TRUE;
 	}
+	if(self.classname == "player" && hit)
+	{addWeaponHit(self.statsController);}
 };
 
 
@@ -473,6 +494,7 @@ void() W_FireLightning =
 		return;
 	}
 
+	recordShotFired(self.statsController);
 // explode if under water
 	if (self.waterlevel > 1)
 	{
@@ -532,6 +554,8 @@ void() GrenadeTouch =
 		return;		// don't explode on owner
 	if (other.takedamage == DAMAGE_AIM)
 	{
+		if(self.owner.classname == "player")
+		{addWeaponHit(self.owner.statsController);}
 		GrenadeExplode();
 		return;
 	}
@@ -587,6 +611,7 @@ void() W_FireGrenade =
 	setmodel (missile, "progs/grenade.mdl");
 	setsize (missile, '0 0 0', '0 0 0');
 	setorigin (missile, self.origin);
+	recordShotFired(self.statsController);
 };
 
 
@@ -640,6 +665,7 @@ void() W_FireSuperSpikes =
 
 void(float ox) W_FireSpikes =
 {
+	recordShotFired(self.statsController);
 	local vector	dir;
 
 	makevectors (self.v_angle);
@@ -686,6 +712,8 @@ void() spike_touch =
 // hit something that bleeds
 	if (other.takedamage)
 	{
+		if(self.owner.classname == "player")
+		{addWeaponHit(self.owner.statsController);}
 		spawn_touchblood (9);
 		T_Damage (other, self, self.owner, 9);
 	}
@@ -727,6 +755,8 @@ void() superspike_touch =
 	{
 		spawn_touchblood (18);
 		T_Damage (other, self, self.owner, 18);
+		if(self.owner.classname == "player")
+		{addWeaponHit(self.owner.statsController);}
 	}
 	else
 	{
