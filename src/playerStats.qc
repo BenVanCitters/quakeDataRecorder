@@ -365,7 +365,7 @@ void() printArmorPickups=
 	sprint(self.owner,"\n");
 }
 
-
+//powerup details
 void() printPowerUps=
 {
 	sprint(self.owner,"powerup count/times quad:"); sprint(self.owner,ftos( self.quads_collected )); sprint(self.owner,"/"); sprint(self.owner,ftos( self.quad_time )); 
@@ -375,6 +375,7 @@ void() printPowerUps=
 			   sprint(self.owner,"\n");
 }
 
+//per-weapon damage
 void() printPerWeaponDmg=
 {
 	sprint(self.owner,"dmg g/r a:"); sprint(self.owner,ftos( self.axe_damage_dealt )); sprint(self.owner,"/"); sprint(self.owner,ftos( self.axe_damage_taken ));
@@ -389,6 +390,7 @@ void() printPerWeaponDmg=
 	sprint(self.owner,"\n");
 }
 
+// how long player has had weapon out
 void() printWeaponTimes=
 {	  
 	sprint(self.owner,"weapon hold times a:"); sprint(self.owner,ftos( self.axe_time )); 
@@ -402,7 +404,7 @@ void() printWeaponTimes=
 	sprint(self.owner,"\n");
 }
 
-
+//how many armor pick ups
 void() printAmmoPickUps=
 {	  
 	sprint(self.owner,"ammo pick ups s:"); sprint(self.owner,ftos( self.shells_collected )); 	
@@ -412,7 +414,7 @@ void() printAmmoPickUps=
 	sprint(self.owner,"\n");
 }
 
-
+//hit and missed
 void() printHitsMisses=
 {	  
 	sprint(self.owner,"hits a:"); sprint(self.owner,ftos( self.axe_shots_hits )); sprint(self.owner,"/"); sprint(self.owner,ftos( self.axe_shots_fired ));
@@ -426,6 +428,7 @@ void() printHitsMisses=
 	sprint(self.owner,"\n");
 }
 
+//show total health collected
 void() printHealthCollected=
 {
 	sprint(self.owner,"health collected: ");
@@ -433,6 +436,7 @@ void() printHealthCollected=
 	sprint(self.owner,"\n");
 }
 
+//various
 void() printMisc=
 {
 	sprint(self.owner,"K/D: ");
