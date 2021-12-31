@@ -3,7 +3,7 @@
 .float times_died;
 .float kills;
 .float damage_done;
-.float start_time;
+.float alive_time;
 .float water_time; //time under water
 
 //number of times the player fired their weapon
@@ -119,6 +119,15 @@ void(entity statsController) resetStats=
 	//statsController.damage_taken = 0;
 }
 
+void(entity statsController, float duration) addAliveTime=
+{	
+	if(statsController.owner.deadflag == DEAD_NO)
+	{
+		statsController.alive_time = statsController.alive_time + duration;
+	}
+}
+
+
 void(entity statsController, float duration) addWaterTime=
 {	
 	if(statsController.owner.deadflag == DEAD_NO && statsController.owner.flags & FL_INWATER)
@@ -126,6 +135,7 @@ void(entity statsController, float duration) addWaterTime=
 		statsController.water_time = statsController.water_time + duration;
 	}
 }
+
 
 void(entity statsController, float duration) addPowerUpTime=
 {	
@@ -341,11 +351,7 @@ void(entity statsController, float distance) addDistance=
 }
 
 
-void() printWaterTime=
-{
-	sprint(self.owner,"time in water:"); sprint(self.owner,ftos( self.water_time ));
-			   sprint(self.owner,"\n");
-}
+
 void() printPowerUps=
 {
 	sprint(self.owner,"powerup count/times quad:"); sprint(self.owner,ftos( self.quads_collected )); sprint(self.owner,"/"); sprint(self.owner,ftos( self.quad_time )); 
@@ -422,6 +428,8 @@ void() printMisc=
 	sprint(self.owner,ftos(self.times_died));
 	sprint(self.owner," dist: ");
 	sprint(self.owner,ftos( self.distance_travelled ));
+	sprint(self.owner,", watertm:"); sprint(self.owner,ftos( self.water_time ));
+	sprint(self.owner,", livetm:"); sprint(self.owner,ftos( self.alive_time ));			 
 	sprint(self.owner,"\n");
 }
 
@@ -433,7 +441,6 @@ void() printAll=
 	//sprint(self.owner,"\n==================\n");
 	//printHitsMisses();
 	//printHealthCollected();
-	printWaterTime();
 	//printPowerUps();
 	//printAmmoPickUps();
 	//printPerWeaponDmg();

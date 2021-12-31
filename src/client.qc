@@ -968,6 +968,7 @@ void() PlayerPreThink =
 	addWeaponTime( self.statsController, time-self.lastUpdateTime );//record how long player has held weapn
 	addPowerUpTime( self.statsController, time-self.lastUpdateTime );//record how long player has had power ups
 	addWaterTime( self.statsController, time-self.lastUpdateTime ); //record how long player has been in water
+	addAliveTime( self.statsController, time-self.lastUpdateTime ); //record how long player was alive
 	self.lastUpdateTime = time;
 };
 
