@@ -611,6 +611,7 @@ local float		best;
 		if (other.ammo_shells >= 100)
 			return;
 		other.ammo_shells = other.ammo_shells + self.aflag;
+		pickedUpAmmo(other.statsController,self.aflag,0,0,0);
 	}
 
 // spikes
@@ -619,6 +620,7 @@ local float		best;
 		if (other.ammo_nails >= 200)
 			return;
 		other.ammo_nails = other.ammo_nails + self.aflag;
+		pickedUpAmmo(other.statsController,0,self.aflag,0,0);
 	}
 
 //	rockets
@@ -627,6 +629,7 @@ local float		best;
 		if (other.ammo_rockets >= 100)
 			return;
 		other.ammo_rockets = other.ammo_rockets + self.aflag;
+		pickedUpAmmo(other.statsController,0,0,self.aflag,0);
 	}
 
 //	cells
@@ -635,6 +638,7 @@ local float		best;
 		if (other.ammo_cells >= 100)
 			return;
 		other.ammo_cells = other.ammo_cells + self.aflag;
+		pickedUpAmmo(other.statsController,0,0,0,self.aflag);
 	}
 
 	bound_other_ammo ();
@@ -1248,7 +1252,8 @@ void() BackpackTouch =
 	other.ammo_nails = other.ammo_nails + self.ammo_nails;
 	other.ammo_rockets = other.ammo_rockets + self.ammo_rockets;
 	other.ammo_cells = other.ammo_cells + self.ammo_cells;
-
+	pickedUpAmmo(other.statsController, self.ammo_shells, self.ammo_nails, self.ammo_rockets, self.ammo_cells);
+	
 	new = self.items;
 	if (!new)
 		new = other.weapon;

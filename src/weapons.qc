@@ -712,8 +712,14 @@ void() spike_touch =
 // hit something that bleeds
 	if (other.takedamage)
 	{
+		if(other.classname == "player")
+		{ recordDelayedDamageReceived(other.statsController,9, self); }
+		
 		if(self.owner.classname == "player")
-		{addWeaponHit(self.owner.statsController);}
+		{
+			addWeaponHit(self.owner.statsController);
+			recordDelayedDamageDealt(self.owner.statsController,9, self);
+		}
 		spawn_touchblood (9);
 		T_Damage (other, self, self.owner, 9);
 	}
@@ -753,10 +759,16 @@ void() superspike_touch =
 // hit something that bleeds
 	if (other.takedamage)
 	{
-		spawn_touchblood (18);
-		T_Damage (other, self, self.owner, 18);
+		if(other.classname == "player")
+		{ recordDelayedDamageReceived(other.statsController,10, self); }
+		
 		if(self.owner.classname == "player")
-		{addWeaponHit(self.owner.statsController);}
+		{
+			addWeaponHit(self.owner.statsController);
+			recordDelayedDamageDealt(self.owner.statsController,10, self);
+		}
+		spawn_touchblood (18);
+		T_Damage (other, self, self.owner, 18);		
 	}
 	else
 	{

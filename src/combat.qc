@@ -163,19 +163,24 @@ void(entity targ, entity inflictor, entity attacker, float damage) T_Damage=
 		}
 		return;
 	}
-	local float targ_is_player, attacker_is_player;
+	local float targ_is_player, attacker_is_player, inflictor_is_delayed;
+	inflictor_is_delayed = ( inflictor.classname == "missile") || 
+	                       ( inflictor.classname == "spike") || 
+	                       ( inflictor.classname == "grenade");
 	targ_is_player = ( targ.classname == "player");
 	attacker_is_player = ( attacker.classname == "player");
 	
 // team play damage avoidance
 	if ( (teamplay == 1) && ( (coop && targ_is_player && attacker_is_player) || (targ.team > 0 && targ.team == attacker.team)) && targ != attacker )
 		return;
-	
-	if(targ_is_player)
-	{ recordDamageReceived(targ.statsController,take); }
-	
-	if(attacker_is_player)
-	{ recordDamageDealt(attacker.statsController,take); }
+	if(!inflictor_is_delayed)
+	{
+		if(targ_is_player)
+		{ recordDamageReceived(targ.statsController,take,inflictor); }
+		
+		if(attacker_is_player)
+		{ recordDamageDealt(attacker.statsController,take); }
+	}
 // do the damage
 	targ.health = targ.health - take;
 
@@ -228,8 +233,15 @@ T_RadiusDamage
 void(entity inflictor, entity attacker, float damage, entity ignore) T_RadiusDamage =
 {
 	local	float 	points;
+	local	float 	points_;
 	local	entity	head;
 	local	vector	org;
+
+	//stats analytics code - but we don't need to run more than once for the loop
+	local float targ_is_player, attacker_is_player, inflictor_is_delayed;
+	inflictor_is_delayed = ( inflictor.classname == "missile") |  (inflictor.classname == "grenade");
+	attacker_is_player = ( attacker.classname == "player");
+	
 
 	head = findradius(inflictor.origin, damage+40);
 
@@ -249,11 +261,24 @@ void(entity inflictor, entity attacker, float damage, entity ignore) T_RadiusDam
 				if (points > 0)
 				{
 					if (CanDamage (head, inflictor))
-					{	// shambler takes half damage from all explosions
+					{		
+						// shambler takes half damage from all explosions
 						if (head.classname == "monster_shambler")
-							T_Damage (head, inflictor, attacker, points*0.5);
+							points_ = points *0.5;
+							
 						else
-							T_Damage (head, inflictor, attacker, points);
+							points_ = points;
+						
+						targ_is_player = ( head.classname == "player");					
+						if(inflictor_is_delayed)
+						{
+							if(targ_is_player)
+							{ recordDelayedDamageReceived(head.statsController,points_, inflictor); }
+							
+							if(attacker_is_player)
+							{ recordDelayedDamageDealt(attacker.statsController,points_, inflictor); }
+						}
+						T_Damage (head, inflictor, attacker, points);
 					}
 				}
 			}
