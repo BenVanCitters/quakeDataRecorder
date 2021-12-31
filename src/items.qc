@@ -94,7 +94,7 @@ float (entity e, float healamount, float ignore) T_Heal =
 	if (e.health > 250)
 		e.health = 250;
 	if(e.classname=="player")
-	{pickedUpHealth(e.statsController, (e.health-prev_health));}//add healing amount they actually added to their life after maxing out etc
+	{record_stat_pickedUpHealth(e.statsController, (e.health-prev_health));}//add healing amount they actually added to their life after maxing out etc
 	return 1;
 };
 
@@ -186,7 +186,7 @@ void() health_touch =
 	// Megahealth = rot down the player's super health
 	if (self.healtype == 2)
 	{
-		pickedUpPowerUp(other.statsController,self); //record super health pickup
+		record_stat_pickedUpPowerUp(other.statsController,self); //record super health pickup
 		other.items = other.items | IT_SUPERHEALTH;
 		self.nextthink = time + 5;
 		self.think = item_megahealth_rot;
@@ -244,7 +244,7 @@ void() armor_touch =
 	if (other.classname != "player")
 		return;
 
-	pickedUpArmor(other.statsController,self);
+	record_stat_pickedUpArmor(other.statsController,self);
 	
 	type = self.armortype;
     value = self.armorvalue;
@@ -617,7 +617,7 @@ local float		best;
 		if (other.ammo_shells >= 100)
 			return;
 		other.ammo_shells = other.ammo_shells + self.aflag;
-		pickedUpAmmo(other.statsController,self.aflag,0,0,0);
+		record_stat_pickedUpAmmo(other.statsController,self.aflag,0,0,0);
 	}
 
 // spikes
@@ -626,7 +626,7 @@ local float		best;
 		if (other.ammo_nails >= 200)
 			return;
 		other.ammo_nails = other.ammo_nails + self.aflag;
-		pickedUpAmmo(other.statsController,0,self.aflag,0,0);
+		record_stat_pickedUpAmmo(other.statsController,0,self.aflag,0,0);
 	}
 
 //	rockets
@@ -635,7 +635,7 @@ local float		best;
 		if (other.ammo_rockets >= 100)
 			return;
 		other.ammo_rockets = other.ammo_rockets + self.aflag;
-		pickedUpAmmo(other.statsController,0,0,self.aflag,0);
+		record_stat_pickedUpAmmo(other.statsController,0,0,self.aflag,0);
 	}
 
 //	cells
@@ -644,7 +644,7 @@ local float		best;
 		if (other.ammo_cells >= 100)
 			return;
 		other.ammo_cells = other.ammo_cells + self.aflag;
-		pickedUpAmmo(other.statsController,0,0,0,self.aflag);
+		record_stat_pickedUpAmmo(other.statsController,0,0,0,self.aflag);
 	}
 
 	bound_other_ammo ();
@@ -1082,7 +1082,7 @@ void() powerup_touch =
 		return;
 	if (other.health <= 0)
 		return;
-	pickedUpPowerUp(other.statsController,self); //record powerup pickup
+	record_stat_pickedUpPowerUp(other.statsController,self); //record powerup pickup
 
 	sprint (other, "You got the ");
 	sprint (other, self.netname);
@@ -1259,7 +1259,7 @@ void() BackpackTouch =
 	other.ammo_nails = other.ammo_nails + self.ammo_nails;
 	other.ammo_rockets = other.ammo_rockets + self.ammo_rockets;
 	other.ammo_cells = other.ammo_cells + self.ammo_cells;
-	pickedUpAmmo(other.statsController, self.ammo_shells, self.ammo_nails, self.ammo_rockets, self.ammo_cells);
+	record_stat_pickedUpAmmo(other.statsController, self.ammo_shells, self.ammo_nails, self.ammo_rockets, self.ammo_cells);
 	
 	new = self.items;
 	if (!new)
