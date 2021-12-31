@@ -113,6 +113,15 @@ void(entity statsController) resetStats=
 	//statsController.damage_taken = 0;
 }
 
+
+
+//picked up health
+void(entity statsController, float heal_amt) pickedUpHealth=
+{
+	statsController.health_collected = statsController.health_collected  + heal_amt;
+}
+
+
 //picked up ammo
 void(entity statsController, float shells, float nails, float rockets, float cells) pickedUpAmmo=
 {
@@ -341,6 +350,14 @@ void() printHitsMisses=
 	sprint(self.owner,"\n");
 }
 
+void() printHealthCollected=
+{
+	sprint(self.owner,"health collected: ");
+	sprint(self.owner,ftos(self.health_collected));
+	sprint(self.owner,"\n");
+
+}
+
 void() printMisc=
 {
 	//sprint(self.owner,"dmg dealt: ");
@@ -362,8 +379,9 @@ void() printAll=
 	sprint(self.owner, self.owner.netname);
 	sprint(self.owner,"\n");
 	//sprint(self.owner,"\n==================\n");
-	printHitsMisses();
-	printAmmoPickUps();
+	//printHitsMisses();
+	printHealthCollected();
+	//printAmmoPickUps();
 	//printPerWeaponDmg();
 	//printWeaponTimes();
 	printMisc();

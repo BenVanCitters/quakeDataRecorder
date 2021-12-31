@@ -80,6 +80,7 @@ HEALTH BOX
 //
 float (entity e, float healamount, float ignore) T_Heal =
 {
+	local float prev_health = e.health;
 	if (e.health <= 0)
 		return 0;
 	if ((!ignore) && (e.health >= other.max_health))
@@ -92,6 +93,8 @@ float (entity e, float healamount, float ignore) T_Heal =
 
 	if (e.health > 250)
 		e.health = 250;
+	if(e.classname=="player")
+	{pickedUpHealth(e.statsController, (e.health-prev_health));}//add healing amount they actually added to their life after maxing out etc
 	return 1;
 };
 
