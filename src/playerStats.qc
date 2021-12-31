@@ -358,27 +358,25 @@ void(entity statsController, float distance) record_stat_addDistance=
 //show armor details
 void() printArmorPickups=
 {
-	sprint(self.owner,"armor pickup count G/Y/R:"); 
+	sprint(self.owner,", armor pickup count G/Y/R:"); 
 	sprint(self.owner,ftos( self.green_armors_collected )); sprint(self.owner,"/"); 
 	sprint(self.owner,ftos( self.yellow_armors_collected )); sprint(self.owner,"/"); 
 	sprint(self.owner,ftos( self.red_armors_collected )); 
-	sprint(self.owner,"\n");
 }
 
 //powerup details
 void() printPowerUps=
 {
-	sprint(self.owner,"powerup count/times quad:"); sprint(self.owner,ftos( self.quads_collected )); sprint(self.owner,"/"); sprint(self.owner,ftos( self.quad_time )); 
+	sprint(self.owner,", powerup count/times quad:"); sprint(self.owner,ftos( self.quads_collected )); sprint(self.owner,"/"); sprint(self.owner,ftos( self.quad_time )); 
 			   sprint(self.owner," ring:"); sprint(self.owner,ftos( self.ring_collected ));  sprint(self.owner,"/"); sprint(self.owner,ftos( self.ring_time )); 
 			   sprint(self.owner," pent:"); sprint(self.owner,ftos( self.pent_collected ));  sprint(self.owner,"/"); sprint(self.owner,ftos( self.pent_time )); 
 			   sprint(self.owner," 100H:"); sprint(self.owner,ftos( self.super_health_collected ));
-			   sprint(self.owner,"\n");
 }
 
 //per-weapon damage
 void() printPerWeaponDmg=
 {
-	sprint(self.owner,"dmg g/r a:"); sprint(self.owner,ftos( self.axe_damage_dealt )); sprint(self.owner,"/"); sprint(self.owner,ftos( self.axe_damage_taken ));
+	sprint(self.owner,", dmg g/r a:"); sprint(self.owner,ftos( self.axe_damage_dealt )); sprint(self.owner,"/"); sprint(self.owner,ftos( self.axe_damage_taken ));
 	sprint(self.owner," s:"); sprint(self.owner,ftos( self.shotgun_damage_dealt ));  sprint(self.owner,"/"); sprint(self.owner,ftos( self.shotgun_damage_taken ));
 	sprint(self.owner," ss:"); sprint(self.owner,ftos( self.sshotgun_damage_dealt )); sprint(self.owner,"/"); sprint(self.owner,ftos( self.sshotgun_damage_taken ));
 	sprint(self.owner," n:"); sprint(self.owner,ftos( self.nailgun_damage_dealt )); sprint(self.owner,"/"); sprint(self.owner,ftos( self.nailgun_damage_taken ));
@@ -387,13 +385,12 @@ void() printPerWeaponDmg=
 	sprint(self.owner," r:"); sprint(self.owner,ftos( self.rocket_damage_dealt )); sprint(self.owner,"/"); sprint(self.owner,ftos( self.rocket_damage_taken ));
 	sprint(self.owner," l:"); sprint(self.owner,ftos( self.lightning_damage_dealt )); sprint(self.owner,"/"); sprint(self.owner,ftos( self.lightning_damage_taken ));
 	sprint(self.owner," ?:"); sprint(self.owner,ftos( self.other_damage_taken )); //other types of damage?? mosters, world, etc
-	sprint(self.owner,"\n");
 }
 
 // how long player has had weapon out
 void() printWeaponTimes=
 {	  
-	sprint(self.owner,"weapon hold times a:"); sprint(self.owner,ftos( self.axe_time )); 
+	sprint(self.owner,", weapon hold times a:"); sprint(self.owner,ftos( self.axe_time )); 
 	sprint(self.owner," s:"); sprint(self.owner,ftos( self.shotgun_time )); 
 	sprint(self.owner," ss:"); sprint(self.owner,ftos( self.sshotgun_time )); 
 	sprint(self.owner," n:"); sprint(self.owner,ftos( self.nailgun_time )); 
@@ -401,23 +398,21 @@ void() printWeaponTimes=
 	sprint(self.owner," g:"); sprint(self.owner,ftos( self.grenade_time )); 
 	sprint(self.owner," r:"); sprint(self.owner,ftos( self.rocket_time )); 
 	sprint(self.owner," l:"); sprint(self.owner,ftos( self.lightning_time )); 
-	sprint(self.owner,"\n");
 }
 
 //how many armor pick ups
 void() printAmmoPickUps=
 {	  
-	sprint(self.owner,"ammo pick ups s:"); sprint(self.owner,ftos( self.shells_collected )); 	
+	sprint(self.owner,", ammo pick ups s:"); sprint(self.owner,ftos( self.shells_collected )); 	
 	sprint(self.owner," n:"); sprint(self.owner,ftos( self.nails_collected )); 	
 	sprint(self.owner," r:"); sprint(self.owner,ftos( self.rockets_collected )); 
 	sprint(self.owner," c:"); sprint(self.owner,ftos( self.cells_collected )); 
-	sprint(self.owner,"\n");
 }
 
 //hit and missed
 void() printHitsMisses=
 {	  
-	sprint(self.owner,"hits a:"); sprint(self.owner,ftos( self.axe_shots_hits )); sprint(self.owner,"/"); sprint(self.owner,ftos( self.axe_shots_fired ));
+	sprint(self.owner,", hits a:"); sprint(self.owner,ftos( self.axe_shots_hits )); sprint(self.owner,"/"); sprint(self.owner,ftos( self.axe_shots_fired ));
 	sprint(self.owner," s: "); sprint(self.owner,ftos( self.shotgun_shots_hits ));  sprint(self.owner,"/"); sprint(self.owner,ftos( self.shotgun_shots_fired ));
 	sprint(self.owner," ss: "); sprint(self.owner,ftos( self.sshotgun_shots_hits )); sprint(self.owner,"/"); sprint(self.owner,ftos( self.sshotgun_shots_fired ));
 	sprint(self.owner," n: "); sprint(self.owner,ftos( self.nailgun_shots_hits )); sprint(self.owner,"/"); sprint(self.owner,ftos( self.nailgun_shots_fired ));
@@ -425,7 +420,6 @@ void() printHitsMisses=
 	sprint(self.owner," g: "); sprint(self.owner,ftos( self.grenade_shots_hits )); sprint(self.owner,"/"); sprint(self.owner,ftos( self.grenade_shots_fired ));
 	sprint(self.owner," r: "); sprint(self.owner,ftos( self.rocket_shots_hits )); sprint(self.owner,"/"); sprint(self.owner,ftos( self.rocket_shots_fired ));
 	sprint(self.owner," l: "); sprint(self.owner,ftos( self.lightning_shots_hits )); sprint(self.owner,"/"); sprint(self.owner,ftos( self.lightning_shots_fired ));
-	sprint(self.owner,"\n");
 }
 
 //show total health collected
@@ -433,7 +427,6 @@ void() printHealthCollected=
 {
 	sprint(self.owner,"health collected: ");
 	sprint(self.owner,ftos(self.health_collected));
-	sprint(self.owner,"\n");
 }
 
 //various
@@ -446,24 +439,24 @@ void() printMisc=
 	sprint(self.owner," dist: ");
 	sprint(self.owner,ftos( self.distance_travelled ));
 	sprint(self.owner,", watertm:"); sprint(self.owner,ftos( self.water_time ));
-	sprint(self.owner,", livetm:"); sprint(self.owner,ftos( self.alive_time ));			 
-	sprint(self.owner,"\n");
+	sprint(self.owner,", livetm:"); sprint(self.owner,ftos( self.alive_time ));		
 }
 
 void() printAll=
 {
-	sprint(self.owner," Player Report:");
+	sprint(self.owner,"Player Report:");
 	sprint(self.owner, self.owner.netname);
+	sprint(self.owner,"\n==================\n");
 	sprint(self.owner,"\n");
 	printArmorPickups();
-	//sprint(self.owner,"\n==================\n");
-	//printHitsMisses();
-	//printHealthCollected();
-	//printPowerUps();
-	//printAmmoPickUps();
-	//printPerWeaponDmg();
-	//printWeaponTimes();
+	printPowerUps();
+	printPerWeaponDmg();
+	printWeaponTimes();
+	printAmmoPickUps();
+	printHitsMisses();
+	printHealthCollected();
 	printMisc();
+	sprint(self.owner,"\n");
 }
 
 //====================================
