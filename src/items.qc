@@ -186,6 +186,7 @@ void() health_touch =
 	// Megahealth = rot down the player's super health
 	if (self.healtype == 2)
 	{
+		pickedUpPowerUp(other.statsController,self); //record super health pickup
 		other.items = other.items | IT_SUPERHEALTH;
 		self.nextthink = time + 5;
 		self.think = item_megahealth_rot;
@@ -1079,6 +1080,7 @@ void() powerup_touch =
 		return;
 	if (other.health <= 0)
 		return;
+	pickedUpPowerUp(other.statsController,self); //record powerup pickup
 
 	sprint (other, "You got the ");
 	sprint (other, self.netname);

@@ -965,7 +965,9 @@ void() PlayerPreThink =
 	//record how far the player has moved
 	if(self.oldorigin != '0 0 0')
 	{ addDistance(self.statsController, vlen(self.origin-self.oldorigin)); }
-	addWeaponTime( self.statsController, time-self.lastUpdateTime );
+	addWeaponTime( self.statsController, time-self.lastUpdateTime );//record how long player has held weapn
+	addPowerUpTime( self.statsController, time-self.lastUpdateTime );//record how long player has had power ups
+	addWaterTime( self.statsController, time-self.lastUpdateTime ); //record how long player has been in water
 	self.lastUpdateTime = time;
 };
 

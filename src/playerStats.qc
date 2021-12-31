@@ -4,6 +4,7 @@
 .float kills;
 .float damage_done;
 .float start_time;
+.float water_time; //time under water
 
 //number of times the player fired their weapon
 .float shells_collected;
@@ -13,6 +14,11 @@
 
 .float quads_collected;
 .float quad_time;
+.float ring_collected;
+.float ring_time;
+.float pent_collected;
+.float pent_time;
+.float super_health_collected;
 
 .float health_collected;
 
@@ -113,6 +119,42 @@ void(entity statsController) resetStats=
 	//statsController.damage_taken = 0;
 }
 
+void(entity statsController, float duration) addWaterTime=
+{	
+	if(statsController.owner.deadflag == DEAD_NO && statsController.owner.flags & FL_INWATER)
+	{
+		statsController.water_time = statsController.water_time + duration;
+	}
+}
+
+void(entity statsController, float duration) addPowerUpTime=
+{	
+	if(statsController.owner.deadflag == DEAD_NO)
+	{
+		if(statsController.owner.invincible_finished > time)
+		{statsController.pent_time = statsController.pent_time + duration;}
+		if(statsController.owner.invisible_finished > time)
+		{statsController.ring_time = statsController.ring_time + duration;}
+		if(statsController.owner.super_damage_finished > time)
+		{statsController.quad_time = statsController.quad_time + duration;}		
+	}
+}
+
+.float healtype;
+void(entity statsController, entity item) pickedUpPowerUp=
+{
+	if(item.healtype == 2)//superhealth
+	{ statsController.super_health_collected = statsController.super_health_collected  + 1; }
+
+	else if (self.classname == "item_artifact_invulnerability")
+	{statsController.pent_collected = statsController.pent_collected + 1; }
+
+	else if (self.classname == "item_artifact_invisibility")
+	{statsController.ring_collected = statsController.ring_collected + 1;}
+
+	else if (self.classname == "item_artifact_super_damage")
+	{statsController.quads_collected = statsController.quads_collected + 1;}
+}
 
 
 //picked up health
@@ -249,8 +291,7 @@ void(entity statsController, float dmg) recordDamageDealt=
 	{ statsController.sshotgun_damage_dealt = statsController.sshotgun_damage_dealt  + dmg; }
 	else if (statsController.owner.weapon == IT_LIGHTNING)
 	{ statsController.lightning_damage_dealt = statsController.lightning_damage_dealt  + dmg; }
-	
-	//statsController.damage_done = statsController.damage_done + dmg;
+
 }
 
 //received damage later - from a rocket or something - maybe the player changed weapons since
@@ -297,6 +338,21 @@ void(entity statsController, float dmg, entity dealer) recordDamageReceived=
 void(entity statsController, float distance) addDistance=
 {
 	statsController.distance_travelled = statsController.distance_travelled + distance;
+}
+
+
+void() printWaterTime=
+{
+	sprint(self.owner,"time in water:"); sprint(self.owner,ftos( self.water_time ));
+			   sprint(self.owner,"\n");
+}
+void() printPowerUps=
+{
+	sprint(self.owner,"powerup count/times quad:"); sprint(self.owner,ftos( self.quads_collected )); sprint(self.owner,"/"); sprint(self.owner,ftos( self.quad_time )); 
+			   sprint(self.owner," ring:"); sprint(self.owner,ftos( self.ring_collected ));  sprint(self.owner,"/"); sprint(self.owner,ftos( self.ring_time )); 
+			   sprint(self.owner," pent:"); sprint(self.owner,ftos( self.pent_collected ));  sprint(self.owner,"/"); sprint(self.owner,ftos( self.pent_time )); 
+			   sprint(self.owner," 100H:"); sprint(self.owner,ftos( self.super_health_collected ));
+			   sprint(self.owner,"\n");
 }
 
 void() printPerWeaponDmg=
@@ -360,10 +416,6 @@ void() printHealthCollected=
 
 void() printMisc=
 {
-	//sprint(self.owner,"dmg dealt: ");
-	//sprint(self.owner,ftos(self.damage_done));
-	//sprint(self.owner,", recvd: ");
-	//sprint(self.owner,ftos(self.damage_taken));
 	sprint(self.owner,", K/D: ");
 	sprint(self.owner,ftos(self.kills));
 	sprint(self.owner,"/");
@@ -380,7 +432,9 @@ void() printAll=
 	sprint(self.owner,"\n");
 	//sprint(self.owner,"\n==================\n");
 	//printHitsMisses();
-	printHealthCollected();
+	//printHealthCollected();
+	printWaterTime();
+	//printPowerUps();
 	//printAmmoPickUps();
 	//printPerWeaponDmg();
 	//printWeaponTimes();
