@@ -244,6 +244,8 @@ void() armor_touch =
 	if (other.classname != "player")
 		return;
 
+	pickedUpArmor(other.statsController,self);
+	
 	type = self.armortype;
     value = self.armorvalue;
     bit = self.items;

@@ -119,6 +119,16 @@ void(entity statsController) resetStats=
 	//statsController.damage_taken = 0;
 }
 
+void(entity statsController, entity item) pickedUpArmor=
+{
+	if(item.items == IT_ARMOR1)//green
+	{ statsController.green_armors_collected = statsController.green_armors_collected  + 1; }
+	else if (item.items == IT_ARMOR2)//yellow
+	{statsController.yellow_armors_collected = statsController.yellow_armors_collected + 1; }
+	else if (item.items == IT_ARMOR3)//red
+	{statsController.red_armors_collected = statsController.red_armors_collected + 1;}
+}
+
 void(entity statsController, float duration) addAliveTime=
 {	
 	if(statsController.owner.deadflag == DEAD_NO)
@@ -350,6 +360,15 @@ void(entity statsController, float distance) addDistance=
 	statsController.distance_travelled = statsController.distance_travelled + distance;
 }
 
+//show armor details
+void() printArmorPickups=
+{
+	sprint(self.owner,"armor pickup count G/Y/R:"); 
+	sprint(self.owner,ftos( self.green_armors_collected )); sprint(self.owner,"/"); 
+	sprint(self.owner,ftos( self.yellow_armors_collected )); sprint(self.owner,"/"); 
+	sprint(self.owner,ftos( self.red_armors_collected )); 
+	sprint(self.owner,"\n");
+}
 
 
 void() printPowerUps=
@@ -422,7 +441,7 @@ void() printHealthCollected=
 
 void() printMisc=
 {
-	sprint(self.owner,", K/D: ");
+	sprint(self.owner,"K/D: ");
 	sprint(self.owner,ftos(self.kills));
 	sprint(self.owner,"/");
 	sprint(self.owner,ftos(self.times_died));
@@ -438,6 +457,7 @@ void() printAll=
 	sprint(self.owner," Player Report:");
 	sprint(self.owner, self.owner.netname);
 	sprint(self.owner,"\n");
+	printArmorPickups();
 	//sprint(self.owner,"\n==================\n");
 	//printHitsMisses();
 	//printHealthCollected();
