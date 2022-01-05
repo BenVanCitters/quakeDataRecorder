@@ -11,7 +11,7 @@ A example pattern for how player stats like kills to deaths ('k/d ratio') or acc
 *  Damage received from each weapon (axe-lightning gun)
 *  Other Damage received from the world, falling, smashing, etc
 *  Individuialized number of times the player fired weapons (axe-lightning gun)
-*  Individuialized number of times the player cored hits with each weapons (axe-lightning gun) 
+*  Individuialized number of times the player scored hits with each weapons (axe-lightning gun) 
 *  Duration of time the player had each weapon selected
 
 **ITEMS**
