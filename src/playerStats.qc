@@ -367,6 +367,7 @@ float(entity statsController) getTotalDamageDealt=
 		statsController.rocket_damage_dealt+
 		statsController.lightning_damage_dealt;
 }
+
 float(entity statsController) getTotalDamageReceived=
 {
 	return statsController.axe_damage_taken+
@@ -379,6 +380,35 @@ float(entity statsController) getTotalDamageReceived=
 		statsController.other_damage_taken+
 		statsController.lightning_damage_taken;
 }
+
+float(entity statsController) getTotalShotsFired=
+{
+	return statsController.axe_shots_fired + 
+		statsController.shotgun_shots_fired+
+		statsController.sshotgun_shots_fired+
+		statsController.nailgun_shots_fired+
+		statsController.snailgun_shots_fired+
+		statsController.grenade_shots_fired+
+		statsController.rocket_shots_fired+
+		statsController.lightning_shots_fired;
+}
+
+
+float(entity statsController) getTotalShotsHit=
+{
+	return statsController.axe_shots_hits+
+		statsController.shotgun_shots_hits+
+		statsController.sshotgun_shots_hits+
+		statsController.nailgun_shots_hits+
+		statsController.snailgun_shots_hits+
+		statsController.grenade_shots_hits+
+		statsController.rocket_shots_hits+
+		statsController.lightning_shots_hits;
+}
+
+
+
+
 
 //====================================
 //Print Functions
@@ -658,6 +688,230 @@ void() printLine15_17=
 }
 
 
+
+
+.float printLineNum;
+
+// think action for entity - prints all lines one a frame (so they
+// all make it into the console) and then removes 'self'
+void() newPrint2= 
+{
+	local entity sc = self.statsController;
+	
+	
+
+	local string line00_ = "Player Report: {}\n";
+	local string line01_ = "           Axe   S   SS   NG    SSN   GL   RL   LG\n";
+	local string line02_ = "         =========================================\n";
+	local string line03_ = "%{}%{}%{}%{}%{}%{}%{}%{}%\n";
+	local string line04_ = "time     {}{}{}{} {}{}{}{}\n";
+	local string line05_ = "dmg taken{} {} {} {} {} {} {} {}\n";
+	local string line06_ = "dmg done {} {} {} {} {} {} {} {}\n";
+	local string line07_ = "total shells: {} nails: {} rockets: {} cells: {} \n";
+	local string line08_ = "\n";
+	local string line09_ = "                Quad  Ring  Pent  Mega            \n";
+	local string line10_ = "               ========================           \n";
+	local string line11_ = "powerup count: {} {} {} {}            \n";
+	local string line12_ = "poweruptime:   {} {} {}                  \n";
+	local string line13_ = "\n";
+	local string line14_ = "k/d ratio:{}/{}  avg life time: {}            \n";
+	local string line15_ = "kills per minute: {}                                        \n";
+	local string line17_ = "dist travelled: {}      Water time: {}      \n";
+	local string line18_ = "dmg ratio:      {} = {}/{}             \n";
+	
+	local float msg_type = MSG_ONE;
+	msg_entity = self.owner;
+	WriteByte(msg_type,SVC_PRINT); // SVC_CENTERPRINT	SVC_PRINT	
+	
+	if(self.printLineNum == 0)
+	{
+		WriteShort(msg_type, 2); 
+		WriteString(msg_type, line00_ );
+
+		WriteString(msg_type, self.owner.netname );//player name
+	}
+	else if(self.printLineNum == 1)
+	{
+		WriteShort(msg_type, 1); 
+		WriteString(msg_type, line01_ );
+	}
+	else if(self.printLineNum == 2)
+	{
+		WriteShort(msg_type, 1); 
+		WriteString(msg_type, line02_ );
+	}
+	else if(self.printLineNum == 3)
+	{
+		WriteShort(msg_type, 9); 
+		WriteString(msg_type, line03_ );
+
+		//accuracy
+		WriteString(msg_type, getAcu(sc.axe_shots_hits, sc.axe_shots_fired) );//axe
+		WriteString(msg_type, getAcu(sc.shotgun_shots_hits, sc.shotgun_shots_fired) );//shotgun
+		WriteString(msg_type, getAcu(sc.sshotgun_shots_hits, sc.sshotgun_shots_fired) );//dbl shot
+		WriteString(msg_type, getAcu(sc.nailgun_shots_hits, sc.nailgun_shots_fired) );//nail
+		WriteString(msg_type, getAcu(sc.snailgun_shots_hits, sc.snailgun_shots_fired) );//super nail
+		WriteString(msg_type, getAcu(sc.grenade_shots_hits, sc.grenade_shots_fired) );//grenade
+		WriteString(msg_type, getAcu(sc.rocket_shots_hits, sc.rocket_shots_fired) );//rock
+		WriteString(msg_type, getAcu(sc.lightning_shots_hits, sc.lightning_shots_fired) );//lightning
+	}
+	else if(self.printLineNum == 4)
+	{
+		WriteShort(msg_type, 9); 
+		WriteString(msg_type, line04_ );
+
+		//time
+		WriteString(msg_type,spacedfloat( sc.axe_time ));//axe
+		WriteString(msg_type,spacedfloat(sc.shotgun_time));//shotgun
+		WriteString(msg_type,spacedfloat(sc.sshotgun_time));//dbl shot
+		WriteString(msg_type,spacedfloat(sc.nailgun_time));//nail
+		WriteString(msg_type,spacedfloat(sc.snailgun_time));//super nail
+		WriteString(msg_type,spacedfloat(sc.grenade_time));//grenade
+	   	WriteString(msg_type,spacedfloat(sc.rocket_time));//rock
+		WriteString(msg_type,spacedfloat(sc.lightning_time));//lightning	
+	} 
+	else if(self.printLineNum == 5)
+	{
+		WriteShort(msg_type, 9); 
+		WriteString(msg_type, line05_ );
+
+		//dmg taken
+		WriteString(msg_type,roundedStr( sc.axe_damage_taken));//axe
+		WriteString(msg_type,roundedStr( sc.shotgun_damage_taken));//shotgun
+		WriteString(msg_type,roundedStr( sc.sshotgun_damage_taken));//dbl shot
+		WriteString(msg_type,roundedStr( sc.nailgun_damage_taken));//nail
+		WriteString(msg_type,roundedStr( sc.snailgun_damage_taken));//super nail
+		WriteString(msg_type,roundedStr( sc.grenade_damage_taken));//grenade
+		WriteString(msg_type,roundedStr( sc.rocket_damage_taken));//rock
+		WriteString(msg_type,roundedStr( sc.lightning_damage_taken));//lightning
+	}
+	else if(self.printLineNum == 6)
+	{
+		WriteShort(msg_type, 9); 
+		WriteString(msg_type, line06_ );
+
+		//dmg done
+		WriteString(msg_type,roundedStr( sc.axe_damage_dealt));//axe
+		WriteString(msg_type,roundedStr( sc.shotgun_damage_dealt));//shotgun
+		WriteString(msg_type,roundedStr( sc.sshotgun_damage_dealt));//dbl shot
+		WriteString(msg_type,roundedStr( sc.nailgun_damage_dealt));//nail
+		WriteString(msg_type,roundedStr( sc.snailgun_damage_dealt));//super nail
+		WriteString(msg_type,roundedStr( sc.grenade_damage_dealt));//grenade
+		WriteString(msg_type,roundedStr( sc.rocket_damage_dealt));//rock
+		WriteString(msg_type,roundedStr( sc.lightning_damage_dealt));//lightning
+	}
+	else if(self.printLineNum == 7)
+	{
+		WriteShort(msg_type, 5); 
+		WriteString(msg_type, line07_ );
+
+		//ammo
+		WriteString(msg_type,roundedStr( sc.shells_collected));//dbl shot
+		WriteString(msg_type,roundedStr( sc.nails_collected));//nail
+		WriteString(msg_type,roundedStr( sc.rockets_collected));//rock
+		WriteString(msg_type,roundedStr( sc.cells_collected));//lightning
+	}
+	else if(self.printLineNum == 8)
+	{
+		WriteShort(msg_type, 1); 
+		WriteString(msg_type, line08_ );
+	}
+	else if(self.printLineNum == 9)
+	{
+		WriteShort(msg_type, 1); 
+		WriteString(msg_type, line09_ );
+	}
+	else if(self.printLineNum == 10)
+	{
+		WriteShort(msg_type, 1); 
+		WriteString(msg_type, line10_ );
+	}
+	else if(self.printLineNum == 11)
+	{
+		WriteShort(msg_type, 5); 
+		WriteString(msg_type, line11_ );
+		
+		//powerups
+		//count
+		WriteString(msg_type,roundedStr( sc.quads_collected));//quad
+		WriteString(msg_type,roundedStr( sc.ring_collected));//ring
+		WriteString(msg_type,roundedStr( sc.pent_collected));//pent
+		WriteString(msg_type,roundedStr( sc.super_health_collected));//mega	
+	}
+	else if(self.printLineNum == 12)
+	{
+		WriteShort(msg_type,4); 
+		WriteString(msg_type, line12_ );
+		//time	
+		WriteString(msg_type,spacedfloat( sc.quad_time));//quad
+		WriteString(msg_type,spacedfloat( sc.ring_time));//ring
+		WriteString(msg_type,spacedfloat( sc.pent_time));//pent
+	}
+	else if(self.printLineNum == 13)
+	{
+		WriteShort(msg_type,1); 
+		WriteString(msg_type, line13_ );
+	}
+	else if(self.printLineNum == 14)
+	{
+		WriteShort(msg_type,4); 
+		WriteString(msg_type, line14_ );
+
+		//random	
+		WriteString(msg_type,roundedStr( sc.kills));// KILLS/d
+		WriteString(msg_type,roundedStr( sc.times_died));// k/DEATHS
+		WriteString(msg_type,spacedfloat( sc.alive_time / self.times_died));// avg life time
+	}
+	else if(self.printLineNum == 15)
+	{
+		WriteShort(msg_type,2); 
+		WriteString(msg_type, line15_ );
+		
+		local float killsPerMinute = sc.kills/( sc.alive_time/60.0);
+		WriteString(msg_type,spacedfloat(killsPerMinute));// kills per minute
+	}
+	else if(self.printLineNum == 16)
+	{
+		WriteShort(msg_type,1); 
+		local string line16_ = "\n";
+		WriteString(msg_type, line16_ );
+	}
+	else if(self.printLineNum == 17)
+	{
+		WriteShort(msg_type,3); 
+		WriteString(msg_type, line17_ );
+
+		WriteString(msg_type,spacedfloat( sc.distance_travelled ) );//dist travelled
+		WriteString(msg_type,spacedfloat( sc.water_time));//Water time
+	}
+	else if(self.printLineNum == 18)
+	{
+		WriteShort(msg_type,4); 
+		WriteString(msg_type, line18_ );
+
+		local float dealt = getTotalDamageDealt( sc );
+		local float received = getTotalDamageReceived( sc );
+		WriteString(msg_type, spacedfloat( dealt / (received +0.0001)) ); //dmg ratio
+		WriteString(msg_type,roundedStr( dealt ));               //dmg done =
+		WriteString(msg_type,roundedStr( received )); //dmg received
+	}
+
+	
+	self.printLineNum = self.printLineNum +1;	
+	
+	self.nextthink = time + 0.01;
+	self.think = newPrint2;
+	
+	if(self.printLineNum > 18)
+	{
+		self.think = SUB_Remove;
+		//wrap in debug
+		self.printLineNum = 0;
+	}
+}
+
+
+
 void() newPrint=
 {
 	/*
@@ -706,7 +960,7 @@ s*/
 	WriteString(msg_type, getAcu(self.rocket_shots_hits, self.rocket_shots_fired) );//rock
 	WriteString(msg_type, getAcu(self.lightning_shots_hits, self.lightning_shots_fired) );//lightning
 	//time
-	WriteString(msg_type,spacedfloat( self.axe_time ));//axe
+	WriteString(msg_type,spacedfloat(self.axe_time ));//axe
 	WriteString(msg_type,spacedfloat(self.shotgun_time));//shotgun
 	WriteString(msg_type,spacedfloat(self.sshotgun_time));//dbl shot
 	WriteString(msg_type,spacedfloat(self.nailgun_time));//nail
@@ -881,7 +1135,7 @@ centerprint(self.owner,  "w000000001000000000020000000003000000004000000000w\n",
 // 5 sprints shows in game 4 lines and in console 1st is lost
 //text in console wraps as well and is significantly different for diff resolutions - always seems to print last 4 messages though - even if they aren't in the same func
 //maybe you only get 4 lines per 'think' routine??
-
+// with the new format strings {{ prints a '{' and }} prints a '}'
         //sprint(self.owner,"000000000100000000002000000000300000000400000000050000000006000000000700000000080000000009");
         //sprint(self.owner,"0000000001000000000020000000003000000004000000000500000000060000000-0700000000080000000009");
         //sprint(self.owner,ftos(time));
@@ -904,21 +1158,135 @@ centerprint(self.owner,  "w000000001000000000020000000003000000004000000000w\n",
 
 }
 
+void() oneLineJSON=
+{
+	//local string json = "{{ \"playerName\":\"{}\", \"distance_travelled\": \"{}\", \"times_died\": \"{}\", \"kills\": \"{}\", \"alive_time\": \"{}\", \"water_time\": \"{}\", \"health_collected\": \"{}\", \"killDeathratio\": \"{}\", \"avgLifeSpan\": \"{}\", \"killsPerMinute\": \"{}\", \"dmgGivenTakenRatio\": \"{}\", \"ammo_collected\": {{ \"shells_collected\": \"{}\", \"nails_collected\": \"{}\", \"rockets_collected\": \"{}\", \"cells_collected\": \"{}\" }}, \"powerups\": {{ \"quad_time\": \"{}\", \"ring_time\": \"{}\", \"pent_time\": \"{}\", \"ring_collected\": \"{}\", \"quads_collected\": \"{}\", \"pent_collected\": \"{}\", \"super_health_collected\": \"{}\" }}, \"armor\": {{ \"green_armors_collected\": \"{}\", \"yellow_armors_collected\": \"{}\", \"red_armors_collected\": \"{}\" }}, \"damageDealt\": {{ \"axe_damage_dealt\": \"{}\", \"shotgun_damage_dealt\": \"{}\", \"sshotgun_damage_dealt\": \"{}\", \"nailgun_damage_dealt\": \"{}\", \"snailgun_damage_dealt\": \"{}\", \"grenade_damage_dealt\": \"{}\", \"rocket_damage_dealt\": \"{}\", \"lightning_damage_dealt\": \"{}\", \"totalDamageDone\": {} }}, \"damageTaken\": {{ \"axe_damage_taken\": \"{}\", \"shotgun_damage_taken\": \"{}\", \"sshotgun_damage_taken\": \"{}\", \"nailgun_damage_taken\": \"{}\", \"snailgun_damage_taken\": \"{}\", \"grenade_damage_taken\": \"{}\", \"rocket_damage_taken\": \"{}\", \"lightning_damage_taken\": \"{}\", \"other_damage_taken\": \"{}\", \"totalDamageTaken\": {} }}, \"shotsFired\": {{ \"axe_shots_fired\": \"{}\", \"shotgun_shots_fired\": \"{}\", \"sshotgun_shots_fired\": \"{}\", \"nailgun_shots_fired\": \"{}\", \"snailgun_shots_fired\": \"{}\", \"grenade_shots_fired\": \"{}\", \"rocket_shots_fired\": \"{}\", \"lightning_shots_fired\": \"{}\", \"totalShotsFired\": \"{}\", }}, \"shotsHit\": {{ \"axe_shots_hits\": \"{}\", \"shotgun_shots_hits\": \"{}\", \"sshotgun_shots_hits\": \"{}\", \"nailgun_shots_hits\": \"{}\", \"snailgun_shots_hits\": \"{}\", \"grenade_shots_hits\": \"{}\", \"rocket_shots_hits\": \"{}\", \"lightning_shots_hits\": \"{}\", \"totalShotsHit\": \"{}\", }}, \"weaponHoldTime\": {{ \"axe_time\": \"{}\", \"shotgun_time\": \"{}\", \"sshotgun_time\": \"{}\", \"nailgun_time\": \"{}\", \"snailgun_time\": \"{}\", \"grenade_time\": \"{}\", \"rocket_time\": \"{}\", \"lightning_time\": \"{}\" }} \"accuracy\": {{\"axe_shots_acc\": \"{}\",\"shotgun_shots_acc\": \"{}\",\"sshotgun_shots_acc\": \"{}\",\"nailgun_shots_acc\": \"{}\",\"snailgun_shots_acc\": \"{}\",\"grenade_shots_acc\": \"{}\",\"rocket_shots_acc\": \"{}\",\"lightning_shots_acc\": \"{}\",\"totalAcc\": \"{}\"}}}}";
+	//can print 1109 chars at once 2033 yep, 2055? NO - over 2048 is too many for one print statement
+	//
+	local string json = "{{\"playerName\":\"{}\",\"distance_travelled\":\"{}\",\"times_died\":\"{}\",\"kills\":\"{}\",\"alive_time\":\"{}\",\"water_time\":\"{}\",\"health_collected\":\"{}\",\"killDeathratio\":\"{}\",\"avgLifeSpan\":\"{}\",\"killsPerMinute\":\"{}\",\"dmgGivenTakenRatio\":\"{}\",\"ammo_collected\":{{\"shells_collected\":\"{}\",\"nails_collected\":\"{}\",\"rockets_collected\":\"{}\",\"cells_collected\":\"{}\"}},\"powerups\":{{\"quad_time\":\"{}\",\"ring_time\":\"{}\",\"pent_time\":\"{}\",\"ring_collected\":\"{}\",\"quads_collected\":\"{}\",\"pent_collected\":\"{}\",\"super_health_collected\":\"{}\"}},\"armor\":{{\"green_armors_collected\":\"{}\",\"yellow_armors_collected\":\"{}\",\"red_armors_collected\":\"{}\"}},\"damageDealt\":{{\"axe_damage_dealt\":\"{}\",\"shotgun_damage_dealt\":\"{}\",\"sshotgun_damage_dealt\":\"{}\",\"nailgun_damage_dealt\":\"{}\",\"snailgun_damage_dealt\":\"{}\",\"grenade_damage_dealt\":\"{}\",\"rocket_damage_dealt\":\"{}\",\"lightning_damage_dealt\":\"{}\",";
+	//local string j2 = "\"totalDamageDone\":{}}},\"damageTaken\":{{\"axe_damage_taken\":\"{}\",\"shotgun_damage_taken\":\"{}\",\"sshotgun_damage_taken\":\"{}\",\"nailgun_damage_taken\":\"{}\",\"snailgun_damage_taken\":\"{}\",\"grenade_damage_taken\":\"{}\",\"rocket_damage_taken\":\"{}\",\"lightning_damage_taken\":\"{}\",\"other_damage_taken\":\"{}\",\"totalDamageTaken\":{}}},\"shotsFired\":{{\"axe_shots_fired\":\"{}\",\"shotgun_shots_fired\":\"{}\",\"sshotgun_shots_fired\":\"{}\",\"nailgun_shots_fired\":\"{}\",\"snailgun_shots_fired\":\"{}\",\"grenade_shots_fired\":\"{}\",\"rocket_shots_fired\":\"{}\",\"lightning_shots_fired\":\"{}\",\"totalShotsFired\":\"{}\",}},\"shotsHit\":{{\"axe_shots_hits\":\"{}\",\"shotgun_shots_hits\":\"{}\",\"sshotgun_shots_hits\":\"{}\",\"nailgun_shots_hits\":\"{}\",\"snailgun_shots_hits\":\"{}\",\"grenade_shots_hits\":\"{}\",\"rocket_shots_hits\":\"{}\",\"lightning_shots_hits\":\"{}\",\"totalShotsHit\":\"{}\",}},\"weaponHoldTime\":{{\"axe_time\":\"{}\",\"shotgun_time\":\"{}\",\"sshotgun_time\":\"{}\",\"nailgun_time\":\"{}\",\"snailgun_time\":\"{}\",\"grenade_time\":\"{}\",\"rocket_time\":\"{}\",\"lightning_time\":\"{}\"}}\"accuracy\":{{\"axe_shots_acc\":\"{}\",\"shotgun_shots_acc\":\"{}\",\"sshotgun_shots_acc\":\"{}\",\"nailgun_shots_acc\":\"{}\",\"snailgun_shots_acc\":\"{}\",\"grenade_shots_acc\":\"{}\",\"rocket_shots_acc\":\"{}\",\"lightning_shots_acc\":\"{}\",\"totalAcc\":\"{}\"}}}}\n";
+	//local string json = "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}\n";
+	local float killsPerMinute = self.kills/(self.alive_time/60.0);	
+	
+	local float dealt = getTotalDamageDealt( self );
+	local float received = getTotalDamageReceived( self );	
+	local float ttlShotsFired = getTotalShotsFired( self );
+	local float ttlShotsHit = getTotalShotsHit( self );
+	
+	local float msg_type = MSG_ONE;
+	msg_entity = self.owner;
+	WriteByte(msg_type,SVC_PRINT); // SVC_PRINT	
+	WriteShort(msg_type,34);
+	WriteString(msg_type, json);
+	WriteString(msg_type, self.owner.netname );//player name
+	WriteString(msg_type,spacedfloat( self.distance_travelled ) );//dist travelled
+	WriteString(msg_type,roundedStr(self.times_died));// k/D
+	WriteString(msg_type,roundedStr(self.kills));// K/d
+	WriteString(msg_type,spacedfloat(self.alive_time));// kills per minute
+	WriteString(msg_type,spacedfloat( self.water_time));//Water time
+	WriteString(msg_type,spacedfloat( self.health_collected) );//Water time
+	WriteString(msg_type,roundedStr(self.kills/(self.times_died+0.0001) ) );// k/D
+	WriteString(msg_type,spacedfloat(self.alive_time / self.times_died));// avg life time
+	WriteString(msg_type,spacedfloat(killsPerMinute));// kills per minute
+	WriteString(msg_type, spacedfloat( dealt / received ) ); //dmg ratio
+	WriteString(msg_type,roundedStr(self.shells_collected));//dbl shot//ammo
+	WriteString(msg_type,roundedStr(self.nails_collected));//nail
+	WriteString(msg_type,roundedStr(self.rockets_collected));//rock
+	WriteString(msg_type,roundedStr(self.cells_collected));//lightning
+	WriteString(msg_type,spacedfloat(self.quad_time));//quad //powerups	//time	
+	WriteString(msg_type,spacedfloat(self.ring_time));//ring
+	WriteString(msg_type,spacedfloat(self.pent_time));//pent
+	WriteString(msg_type,roundedStr(self.quads_collected));//quad //count
+	WriteString(msg_type,roundedStr(self.ring_collected));//ring
+	WriteString(msg_type,roundedStr(self.pent_collected));//pent
+	WriteString(msg_type,roundedStr(self.super_health_collected));//mega
+	WriteString(msg_type,roundedStr(self.green_armors_collected));//green //armor
+	WriteString(msg_type,roundedStr(self.yellow_armors_collected));//yellow
+	WriteString(msg_type,roundedStr(self.red_armors_collected));//red
+	WriteString(msg_type,roundedStr(self.axe_damage_dealt));//axe //dmg done
+	WriteString(msg_type,roundedStr(self.shotgun_damage_dealt));//shotgun
+	WriteString(msg_type,roundedStr(self.sshotgun_damage_dealt));//dbl shot
+	WriteString(msg_type,roundedStr(self.nailgun_damage_dealt));//nail
+	WriteString(msg_type,roundedStr(self.snailgun_damage_dealt));//super nail
+	WriteString(msg_type,roundedStr(self.grenade_damage_dealt));//grenade	
+	WriteString(msg_type,roundedStr(self.rocket_damage_dealt));//rock
+	WriteString(msg_type,roundedStr(self.lightning_damage_dealt));//lightning	
+	
+	local string j2 = "\"totalDamageDone\":{}}},\"damageTaken\":{{\"axe_damage_taken\":\"{}\",\"shotgun_damage_taken\":\"{}\",\"sshotgun_damage_taken\":\"{}\",\"nailgun_damage_taken\":\"{}\",\"snailgun_damage_taken\":\"{}\",\"grenade_damage_taken\":\"{}\",\"rocket_damage_taken\":\"{}\",\"lightning_damage_taken\":\"{}\",\"other_damage_taken\":\"{}\",\"totalDamageTaken\":{}}},\"shotsFired\":{{\"axe_shots_fired\":\"{}\",\"shotgun_shots_fired\":\"{}\",\"sshotgun_shots_fired\":\"{}\",\"nailgun_shots_fired\":\"{}\",\"snailgun_shots_fired\":\"{}\",\"grenade_shots_fired\":\"{}\",\"rocket_shots_fired\":\"{}\",\"lightning_shots_fired\":\"{}\",\"totalShotsFired\":\"{}\"}},\"shotsHit\":{{\"axe_shots_hits\":\"{}\",\"shotgun_shots_hits\":\"{}\",\"sshotgun_shots_hits\":\"{}\",\"nailgun_shots_hits\":\"{}\",\"snailgun_shots_hits\":\"{}\",\"grenade_shots_hits\":\"{}\",\"rocket_shots_hits\":\"{}\",\"lightning_shots_hits\":\"{}\",\"totalShotsHit\":\"{}\"}},\"weaponHoldTime\":{{\"axe_time\":\"{}\",\"shotgun_time\":\"{}\",\"sshotgun_time\":\"{}\",\"nailgun_time\":\"{}\",\"snailgun_time\":\"{}\",\"grenade_time\":\"{}\",\"rocket_time\":\"{}\",\"lightning_time\":\"{}\"}},\"accuracy\":{{\"axe_shots_acc\":\"{}\",\"shotgun_shots_acc\":\"{}\",\"sshotgun_shots_acc\":\"{}\",\"nailgun_shots_acc\":\"{}\",\"snailgun_shots_acc\":\"{}\",\"grenade_shots_acc\":\"{}\",\"rocket_shots_acc\":\"{}\",\"lightning_shots_acc\":\"{}\",\"totalAcc\":\"{}\"}}}}\n";
+	
+	msg_entity = self.owner;
+	WriteByte(msg_type,SVC_PRINT); // SVC_PRINT	
+	WriteShort(msg_type,47);	
+	WriteString(msg_type, j2);
+	WriteString(msg_type,roundedStr( dealt ));               //total dmg done
+	WriteString(msg_type,roundedStr(self.axe_damage_taken));//axe //dmg taken
+	WriteString(msg_type,roundedStr(self.shotgun_damage_taken));//shotgun
+	WriteString(msg_type,roundedStr(self.sshotgun_damage_taken));//dbl shot
+	WriteString(msg_type,roundedStr(self.nailgun_damage_taken));//nail
+	WriteString(msg_type,roundedStr(self.snailgun_damage_taken));//super nail
+	WriteString(msg_type,roundedStr(self.grenade_damage_taken));//grenade
+	WriteString(msg_type,roundedStr(self.rocket_damage_taken));//rock
+	WriteString(msg_type,roundedStr(self.lightning_damage_taken));//lightning
+	WriteString(msg_type,roundedStr(self.other_damage_taken));//other
+	WriteString(msg_type,roundedStr( received )); //total dmg received
+	WriteString(msg_type, roundedStr( self.axe_shots_fired) );//axe//fired
+	WriteString(msg_type, roundedStr( self.shotgun_shots_fired) );//shotgun
+	WriteString(msg_type, roundedStr( self.sshotgun_shots_fired) );//dbl shot
+	WriteString(msg_type, roundedStr( self.nailgun_shots_fired) );//nail
+	WriteString(msg_type, roundedStr( self.snailgun_shots_fired) );//super nail
+	WriteString(msg_type, roundedStr( self.grenade_shots_fired) );//grenade
+	WriteString(msg_type, roundedStr( self.rocket_shots_fired) );//rock
+	WriteString(msg_type, roundedStr( self.lightning_shots_fired) );//lightning
+	WriteString(msg_type, roundedStr( ttlShotsFired) );//total
+	WriteString(msg_type, roundedStr(self.axe_shots_hits) );//axe//hit
+	WriteString(msg_type, roundedStr(self.shotgun_shots_hits) );//shotgun
+	WriteString(msg_type, roundedStr(self.sshotgun_shots_hits) );//dbl shot
+	WriteString(msg_type, roundedStr(self.nailgun_shots_hits) );//nail
+	WriteString(msg_type, roundedStr(self.snailgun_shots_hits) );//super nail
+	WriteString(msg_type, roundedStr(self.grenade_shots_hits) );//grenade
+	WriteString(msg_type, roundedStr(self.rocket_shots_hits) );//rock
+	WriteString(msg_type, roundedStr(self.lightning_shots_hits) );//lightning
+	WriteString(msg_type, roundedStr(ttlShotsHit) );//total
+	WriteString(msg_type,spacedfloat(self.axe_time ));//axe//time
+	WriteString(msg_type,spacedfloat(self.shotgun_time));//shotgun
+	WriteString(msg_type,spacedfloat(self.sshotgun_time));//dbl shot
+	WriteString(msg_type,spacedfloat(self.nailgun_time));//nail
+	WriteString(msg_type,spacedfloat(self.snailgun_time));//super nail
+	WriteString(msg_type,spacedfloat(self.grenade_time));//grenade
+	WriteString(msg_type,spacedfloat(self.rocket_time));//rock
+	WriteString(msg_type,spacedfloat(self.lightning_time));//lightning
+	WriteString(msg_type, getAcu(self.axe_shots_hits, self.axe_shots_fired) );//axe
+	WriteString(msg_type, getAcu(self.shotgun_shots_hits, self.shotgun_shots_fired) );//shotgun
+	WriteString(msg_type, getAcu(self.sshotgun_shots_hits, self.sshotgun_shots_fired) );//dbl shot
+	WriteString(msg_type, getAcu(self.nailgun_shots_hits, self.nailgun_shots_fired) );//nail
+	WriteString(msg_type, getAcu(self.snailgun_shots_hits, self.snailgun_shots_fired) );//super nail
+	WriteString(msg_type, getAcu(self.grenade_shots_hits, self.grenade_shots_fired) );//grenade
+	WriteString(msg_type, getAcu(self.rocket_shots_hits, self.rocket_shots_fired) );//rock
+	WriteString(msg_type, getAcu(self.lightning_shots_hits, self.lightning_shots_fired) );//lightning
+	WriteString(msg_type, getAcu(ttlShotsHit, ttlShotsFired) );//TOTAL		
+/*	*/
+}
+
 //====================================
 //controller entity stuff
 //====================================
 
 void() statsThink=
 {
-	//sprint(self.owner, ftos(self.owner.impulse));
-		//printLine12(); 		printLine23(); 		printLine45();		printLine69();		printLine10_12();		printLine13_14();		printLine15_17();
-	//sprint(self.owner, "\n");
+	
 	if(self.impulse == 100)
 	{
-
-		//sprint(self.owner,"a1");
+		oneLineJSON();
+		//spawn an entity whose sole purpose is to print stats out line by line to the console!
+		//local entity statPrinter = spawn();
+		//statPrinter.printLineNum = 0;
+		//statPrinter.think = newPrint2;
+		//statPrinter.nextthink = 0.1;
+		//statPrinter.statsController = self;	
+		//statPrinter.owner = self.owner;	
+		
 		//printAll();
-		newPrint();//testPrint();
+		//newPrint();//testPrint();
 		self.impulse = 0;
 	}
 	self.think = statsThink;
