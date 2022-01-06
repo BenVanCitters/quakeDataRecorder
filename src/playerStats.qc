@@ -351,6 +351,35 @@ void(entity statsController, float distance) record_stat_addDistance=
 }
 
 
+
+
+//====================================
+//Helper Functions
+//====================================
+float(entity statsController) getTotalDamageDealt=
+{
+	return statsController.axe_damage_dealt+
+		statsController.shotgun_damage_dealt+
+		statsController.sshotgun_damage_dealt+
+		statsController.nailgun_damage_dealt+
+		statsController.snailgun_damage_dealt+
+		statsController.grenade_damage_dealt+
+		statsController.rocket_damage_dealt+
+		statsController.lightning_damage_dealt;
+}
+float(entity statsController) getTotalDamageReceived=
+{
+	return statsController.axe_damage_taken+
+		statsController.shotgun_damage_taken+
+		statsController.sshotgun_damage_taken+
+		statsController.nailgun_damage_taken+
+		statsController.snailgun_damage_taken+
+		statsController.grenade_damage_taken+
+		statsController.rocket_damage_taken+
+		statsController.other_damage_taken+
+		statsController.lightning_damage_taken;
+}
+
 //====================================
 //Print Functions
 //====================================
@@ -459,16 +488,453 @@ void() printAll=
 	sprint(self.owner,"\n");
 }
 
+//div by zero protection
+string(float hits,float shots) getAcu=
+{
+	local float result = 0.0001;
+	if(shots > 0)
+		result = result + hits/shots;
+	
+	return ftos(100*result);
+}
+
+string(float val) spacedfloat=
+{
+	local float result = val + 0.0001;		
+	return ftos(result);
+}
+
+string(float val) roundedStr=
+{
+	local float result = floor(val);
+	return ftos(result);
+}
+
+
+void() printLine12=
+{
+local float msg_type = MSG_ONE;
+	msg_entity = self.owner;
+	WriteByte(msg_type,SVC_PRINT); // SVC_CENTERPRINT	
+	//WriteByte(msg_type,SVC_CENTERPRINT); // SVC_PRINT	
+	WriteShort(msg_type,1); // '3' is the number of writestrings including args
+	WriteString(msg_type,"           Axe   S   SS   NG    SSN   GL   RL   LG\n         =========================================\n");//%{}%{}%{}%{}%{}%{}%{}%{}%\ntime     {}{}{}{} {}{}{}{}\ndmg taken{} {} {} {} {} {} {} {}\ndmg done {} {} {} {} {} {} {} {}\ntotal shells: {} nails: {} rockets: {} cells: {} \n\n                Quad  Ring  Pent  Mega            \n               ========================           \npowerup count: {} {} {} {}            \npoweruptime:   {} {} {}                  \n\nk/d ratio:{}/{}  avg life time: {}            \nkills per minute: {}                                        \n\ndist travelled: {}      Water time: {}      \ndmg ratio:      {} = {}/{}             \n");
+}
+void() printLine23=
+{
+	local float msg_type = MSG_ONE;
+	msg_entity = self.owner;
+	WriteByte(msg_type,SVC_PRINT); // SVC_CENTERPRINT	
+	//WriteByte(msg_type,SVC_CENTERPRINT); // SVC_PRINT	
+	WriteShort(msg_type,17); // '3' is the number of writestrings including args
+	WriteString(msg_type,"%{}%{}%{}%{}%{}%{}%{}%{}%\ntime     {}{}{}{} {}{}{}{}\n");//dmg taken{} {} {} {} {} {} {} {}\ndmg done {} {} {} {} {} {} {} {}\ntotal shells: {} nails: {} rockets: {} cells: {} \n\n                Quad  Ring  Pent  Mega            \n               ========================           \npowerup count: {} {} {} {}            \npoweruptime:   {} {} {}                  \n\nk/d ratio:{}/{}  avg life time: {}            \nkills per minute: {}                                        \n\ndist travelled: {}      Water time: {}      \ndmg ratio:      {} = {}/{}             \n");
+
+	//accuracy
+	WriteString(msg_type, getAcu(self.axe_shots_hits, self.axe_shots_fired) );//axe
+	WriteString(msg_type, getAcu(self.shotgun_shots_hits, self.shotgun_shots_fired) );//shotgun
+	WriteString(msg_type, getAcu(self.sshotgun_shots_hits, self.sshotgun_shots_fired) );//dbl shot
+	WriteString(msg_type, getAcu(self.nailgun_shots_hits, self.nailgun_shots_fired) );//nail
+	WriteString(msg_type, getAcu(self.snailgun_shots_hits, self.snailgun_shots_fired) );//super nail
+	WriteString(msg_type, getAcu(self.grenade_shots_hits, self.grenade_shots_fired) );//grenade
+	WriteString(msg_type, getAcu(self.rocket_shots_hits, self.rocket_shots_fired) );//rock
+	WriteString(msg_type, getAcu(self.lightning_shots_hits, self.lightning_shots_fired) );//lightning
+		//time
+	WriteString(msg_type,spacedfloat( self.axe_time ));//axe
+	WriteString(msg_type,spacedfloat(self.shotgun_time));//shotgun
+	WriteString(msg_type,spacedfloat(self.sshotgun_time));//dbl shot
+	WriteString(msg_type,spacedfloat(self.nailgun_time));//nail
+	WriteString(msg_type,spacedfloat(self.snailgun_time));//super nail
+	WriteString(msg_type,spacedfloat(self.grenade_time));//grenade
+	WriteString(msg_type,spacedfloat(self.rocket_time));//rock
+	WriteString(msg_type,spacedfloat(self.lightning_time));//lightning
+	//dmg taken
+}
+
+void() printLine45=
+{
+	local float msg_type = MSG_ONE;
+	msg_entity = self.owner;
+	WriteByte(msg_type,SVC_PRINT); // SVC_CENTERPRINT	
+	//WriteByte(msg_type,SVC_CENTERPRINT); // SVC_PRINT	
+	WriteShort(msg_type,17); // '3' is the number of writestrings including args
+	WriteString(msg_type,"dmg taken{} {} {} {} {} {} {} {}\ndmg done {} {} {} {} {} {} {} {}\n");//total shells: {} nails: {} rockets: {} cells: {} \n\n                Quad  Ring  Pent  Mega            \n               ========================           \npowerup count: {} {} {} {}            \npoweruptime:   {} {} {}                  \n\nk/d ratio:{}/{}  avg life time: {}            \nkills per minute: {}                                        \n\ndist travelled: {}      Water time: {}      \ndmg ratio:      {} = {}/{}             \n");
+	//dmg taken
+	WriteString(msg_type,roundedStr(self.axe_damage_taken));//axe
+	WriteString(msg_type,roundedStr(self.shotgun_damage_taken));//shotgun
+	WriteString(msg_type,roundedStr(self.sshotgun_damage_taken));//dbl shot
+	WriteString(msg_type,roundedStr(self.nailgun_damage_taken));//nail
+	WriteString(msg_type,roundedStr(self.snailgun_damage_taken));//super nail
+	WriteString(msg_type,roundedStr(self.grenade_damage_taken));//grenade
+	WriteString(msg_type,roundedStr(self.rocket_damage_taken));//rock
+	WriteString(msg_type,roundedStr(self.lightning_damage_taken));//lightning
+	//dmg done
+	WriteString(msg_type,roundedStr(self.axe_damage_dealt));//axe
+	WriteString(msg_type,roundedStr(self.shotgun_damage_dealt));//shotgun
+	WriteString(msg_type,roundedStr(self.sshotgun_damage_dealt));//dbl shot
+	WriteString(msg_type,roundedStr(self.nailgun_damage_dealt));//nail
+	WriteString(msg_type,roundedStr(self.snailgun_damage_dealt));//super nail
+	WriteString(msg_type,roundedStr(self.grenade_damage_dealt));//grenade
+	WriteString(msg_type,roundedStr(self.rocket_damage_dealt));//rock
+	WriteString(msg_type,roundedStr(self.lightning_damage_dealt));//lightning
+}
+
+
+
+void() printLine69=
+{
+	local float msg_type = MSG_ONE;
+	msg_entity = self.owner;
+	WriteByte(msg_type,SVC_PRINT); // SVC_CENTERPRINT	
+	//WriteByte(msg_type,SVC_CENTERPRINT); // SVC_PRINT	
+	WriteShort(msg_type,5); // '3' is the number of writestrings including args
+	WriteString(msg_type,"total shells: {} nails: {} rockets: {} cells: {} \n\n                Quad  Ring  Pent  Mega            \n               ========================           \n");//powerup count: {} {} {} {}            \npoweruptime:   {} {} {}                  \n\nk/d ratio:{}/{}  avg life time: {}            \nkills per minute: {}                                        \n\ndist travelled: {}      Water time: {}      \ndmg ratio:      {} = {}/{}             \n");
+
+//ammo
+	WriteString(msg_type,roundedStr(self.shells_collected));//dbl shot
+	WriteString(msg_type,roundedStr(self.nails_collected));//nail
+	WriteString(msg_type,roundedStr(self.rockets_collected));//rock
+	WriteString(msg_type,roundedStr(self.cells_collected));//lightning
+}
+
+
+void() printLine10_12=
+{
+	local float msg_type = MSG_ONE;
+	msg_entity = self.owner;
+	WriteByte(msg_type,SVC_PRINT); // SVC_CENTERPRINT	
+	//WriteByte(msg_type,SVC_CENTERPRINT); // SVC_PRINT	
+	WriteShort(msg_type,8); // '3' is the number of writestrings including args
+	WriteString(msg_type,"powerup count: {} {} {} {}            \npoweruptime:   {} {} {}                  \n\n");//k/d ratio:{}/{}  avg life time: {}            \nkills per minute: {}                                        \n\ndist travelled: {}      Water time: {}      \ndmg ratio:      {} = {}/{}             \n");
+
+	//powerups
+	//count
+	WriteString(msg_type,roundedStr(self.quads_collected));//quad
+	WriteString(msg_type,roundedStr(self.ring_collected));//ring
+	WriteString(msg_type,roundedStr(self.pent_collected));//pent
+	WriteString(msg_type,roundedStr(self.super_health_collected));//mega
+	
+	//time	
+	WriteString(msg_type,spacedfloat(self.quad_time));//quad
+	WriteString(msg_type,spacedfloat(self.ring_time));//ring
+	WriteString(msg_type,spacedfloat(self.pent_time));//pent
+}
+
+
+void() printLine13_14=
+{
+	local float msg_type = MSG_ONE;
+	msg_entity = self.owner;
+	WriteByte(msg_type,SVC_PRINT); // SVC_CENTERPRINT	
+	//WriteByte(msg_type,SVC_CENTERPRINT); // SVC_PRINT	
+	WriteShort(msg_type,5); // '3' is the number of writestrings including args
+	WriteString(msg_type,"k/d ratio:{}/{}  avg life time: {}            \nkills per minute: {}                                        \n");//\ndist travelled: {}      Water time: {}      \ndmg ratio:      {} = {}/{}             \n");
+
+	//random	
+	WriteString(msg_type,roundedStr(self.kills));// K/d
+	WriteString(msg_type,roundedStr(self.times_died));// k/D
+	WriteString(msg_type,spacedfloat(self.alive_time / self.times_died));// avg life time
+	local float killsPerMinute = self.kills/(self.alive_time/60.0);
+	WriteString(msg_type,spacedfloat(killsPerMinute));// kills per minute
+	
+}
+
+
+void() printLine15_17=
+{
+	local float msg_type = MSG_ONE;
+	msg_entity = self.owner;
+	WriteByte(msg_type,SVC_PRINT); // SVC_CENTERPRINT	
+	//WriteByte(msg_type,SVC_CENTERPRINT); // SVC_PRINT	
+	WriteShort(msg_type,6); // '3' is the number of writestrings including args
+	WriteString(msg_type,"\ndist travelled: {}      Water time: {}      \ndmg ratio:      {} = {}/{}             \n");
+
+	WriteString(msg_type,spacedfloat( self.distance_travelled ) );//dist travelled
+	WriteString(msg_type,spacedfloat( self.water_time));//Water time
+	local float dealt = getTotalDamageDealt( self );
+	local float received = getTotalDamageReceived( self );
+	WriteString(msg_type, spacedfloat( dealt / received ) ); //dmg ratio
+	WriteString(msg_type,roundedStr( dealt ));               //dmg done =
+	WriteString(msg_type,roundedStr( received )); //dmg received
+}
+
+
+void() newPrint=
+{
+	/*
+a       "playerReport: teamred                             \n
+a       "           Axe   S   SS   NG    SSN   GL   RL   LG\n
+b	"         =========================================\n
+c	"accuracy [000][000][200][000] [000][000][000][000]\n
+d	"time     [000][000][200][000] [000][000][000][000]\n"
+e	"dmg taken[000][000][200][000] [000][000][000][000]\n"
+f	"dmg done [000][000][200][000] [000][000][000][000]\n"
+g	"ammo     [000][000][200][000] [000][000][000][000]\n"
+h	"                                                  \n"
+i	"                Quad  Ring  Pent  Mega            \n'
+j	"               ========================           \n"	
+k	"powerup count: [000] [000] [300] [000]            \n"
+l	"poweruptime:   [000] [000] [300]                  \n"
+m	"                                                  \n"
+n	"k/d ratio:[000] 0/0    avg life time: [000]       \n"	
+o	"kpm: [000]                                        \n"
+p	"                                                  \n'
+q	"dist travelled: [000]      Water time: [000]      \n'	
+r	"dmg ratio:      [000] = [0000]/[0000]             \n"
+s*/
+
+//local string lineA = "           Axe   S   SS   NG    SSN   GL   RL   LG\n";
+//"         =========================================\n
+//"accuracy {}{}{}{} {}{}{}{}\n"
+
+       local float msg_type = MSG_ONE;
+	msg_entity = self.owner;
+	WriteByte(msg_type,SVC_PRINT); // SVC_CENTERPRINT	
+	//WriteByte(msg_type,SVC_CENTERPRINT); // SVC_PRINT	
+	WriteShort(msg_type,54); // '3' is the number of writestrings including args
+	WriteString(msg_type,
+"Player Report: {}\n           Axe   S   SS   NG    SSN   GL   RL   LG\n         =========================================\n%{}%{}%{}%{}%{}%{}%{}%{}%\ntime     {}{}{}{} {}{}{}{}\ndmg taken{} {} {} {} {} {} {} {}\ndmg done {} {} {} {} {} {} {} {}\ntotal shells: {} nails: {} rockets: {} cells: {} \n\n                Quad  Ring  Pent  Mega            \n               ========================           \npowerup count: {} {} {} {}            \npoweruptime:   {} {} {}                  \n\nk/d ratio:{}/{}  avg life time: {}            \nkills per minute: {}                                        \n\ndist travelled: {}      Water time: {}      \ndmg ratio:      {} = {}/{}             \n");
+
+	WriteString(msg_type, self.owner.netname );//player name
+	
+	//accuracy
+	WriteString(msg_type, getAcu(self.axe_shots_hits, self.axe_shots_fired) );//axe
+	WriteString(msg_type, getAcu(self.shotgun_shots_hits, self.shotgun_shots_fired) );//shotgun
+	WriteString(msg_type, getAcu(self.sshotgun_shots_hits, self.sshotgun_shots_fired) );//dbl shot
+	WriteString(msg_type, getAcu(self.nailgun_shots_hits, self.nailgun_shots_fired) );//nail
+	WriteString(msg_type, getAcu(self.snailgun_shots_hits, self.snailgun_shots_fired) );//super nail
+	WriteString(msg_type, getAcu(self.grenade_shots_hits, self.grenade_shots_fired) );//grenade
+	WriteString(msg_type, getAcu(self.rocket_shots_hits, self.rocket_shots_fired) );//rock
+	WriteString(msg_type, getAcu(self.lightning_shots_hits, self.lightning_shots_fired) );//lightning
+	//time
+	WriteString(msg_type,spacedfloat( self.axe_time ));//axe
+	WriteString(msg_type,spacedfloat(self.shotgun_time));//shotgun
+	WriteString(msg_type,spacedfloat(self.sshotgun_time));//dbl shot
+	WriteString(msg_type,spacedfloat(self.nailgun_time));//nail
+	WriteString(msg_type,spacedfloat(self.snailgun_time));//super nail
+	WriteString(msg_type,spacedfloat(self.grenade_time));//grenade
+	WriteString(msg_type,spacedfloat(self.rocket_time));//rock
+	WriteString(msg_type,spacedfloat(self.lightning_time));//lightning
+	//dmg taken
+	WriteString(msg_type,roundedStr(self.axe_damage_taken));//axe
+	WriteString(msg_type,roundedStr(self.shotgun_damage_taken));//shotgun
+	WriteString(msg_type,roundedStr(self.sshotgun_damage_taken));//dbl shot
+	WriteString(msg_type,roundedStr(self.nailgun_damage_taken));//nail
+	WriteString(msg_type,roundedStr(self.snailgun_damage_taken));//super nail
+	WriteString(msg_type,roundedStr(self.grenade_damage_taken));//grenade
+	WriteString(msg_type,roundedStr(self.rocket_damage_taken));//rock
+	WriteString(msg_type,roundedStr(self.lightning_damage_taken));//lightning
+	//dmg done
+	WriteString(msg_type,roundedStr(self.axe_damage_dealt));//axe
+	WriteString(msg_type,roundedStr(self.shotgun_damage_dealt));//shotgun
+	WriteString(msg_type,roundedStr(self.sshotgun_damage_dealt));//dbl shot
+	WriteString(msg_type,roundedStr(self.nailgun_damage_dealt));//nail
+	WriteString(msg_type,roundedStr(self.snailgun_damage_dealt));//super nail
+	WriteString(msg_type,roundedStr(self.grenade_damage_dealt));//grenade
+	WriteString(msg_type,roundedStr(self.rocket_damage_dealt));//rock
+	WriteString(msg_type,roundedStr(self.lightning_damage_dealt));//lightning
+	//ammo
+	WriteString(msg_type,roundedStr(self.shells_collected));//dbl shot
+	WriteString(msg_type,roundedStr(self.nails_collected));//nail
+	WriteString(msg_type,roundedStr(self.rockets_collected));//rock
+	WriteString(msg_type,roundedStr(self.cells_collected));//lightning
+	
+	
+		//powerups
+	//count
+	WriteString(msg_type,roundedStr(self.quads_collected));//quad
+	WriteString(msg_type,roundedStr(self.ring_collected));//ring
+	WriteString(msg_type,roundedStr(self.pent_collected));//pent
+	WriteString(msg_type,roundedStr(self.super_health_collected));//mega
+	
+	//time	
+	WriteString(msg_type,spacedfloat(self.quad_time));//quad
+	WriteString(msg_type,spacedfloat(self.ring_time));//ring
+	WriteString(msg_type,spacedfloat(self.pent_time));//pent
+
+	//random	
+	WriteString(msg_type,roundedStr(self.kills));// K/d
+	WriteString(msg_type,roundedStr(self.times_died));// k/D
+	WriteString(msg_type,spacedfloat(self.alive_time / self.times_died));// avg life time
+	local float killsPerMinute = self.kills/(self.alive_time/60.0);
+	WriteString(msg_type,spacedfloat(killsPerMinute));// kills per minute
+	
+	
+	WriteString(msg_type,spacedfloat( self.distance_travelled ) );//dist travelled
+	WriteString(msg_type,spacedfloat( self.water_time));//Water time
+	local float dealt = getTotalDamageDealt( self );
+	local float received = getTotalDamageReceived( self );
+	WriteString(msg_type, spacedfloat( dealt / received ) ); //dmg ratio
+	WriteString(msg_type,roundedStr( dealt ));               //dmg done =
+	WriteString(msg_type,roundedStr( received )); //dmg received
+	
+}
+
+void() testPrint=
+{
+	//"0000000001000000000020000000003000000004000000000500"//max-width 52 characters or 51 w/ '\n'
+	//if too many characters  in a single line- it swallows two chars for the endl/'\n'
+	//it can print lines a-w (w is half off screen - and t-w are overlapping the regular hud
+	//multiple calls to 'centerprint will overwrite one another
+	// characters per line isn't limited by the resolution, but can go off the edge of the screen
+	//typeface is not monospaced ('.' is narrower than '4') but will only print 50 chars on a line
+	//      ftos(3) will print      '3' - ie taking  one/1 space
+	//    ftos(3.0) will print      '3' - ie taking  one/1 space
+	//    ftos(3.1) will print  '  3.1' - ie taking five/5 spaces
+	//   ftos(23.1) will print  ' 23.1' - ie taking five/5 spaces
+	//  ftos(123.1) will print  '123.1' - ie taking five/5 spaces
+	// ftos(1234.1) will print '1234.1' - ie taking six/6 spaces
+	
+	/* 0123456789012345678901234567890123456789012345678901
+		   a000000001000000000020000000003000000004000000000a\n
+		   b000000001000000000020000000003000000004000000000b\n
+		   c000000001000000000020000000003000000004000000000c\n
+		   d000000001000000000020000000003000000004000000000d\n
+		   e000000001000000000020000000003000000004000000000e\n
+		   f000000001000000000020000000003000000004000000000f\n
+           g000000001000000000020000000003000000004000000000g\n
+           h000000001000000000020000000003000000004000000000h\n
+           i000000001000000000020000000003000000004000000000i\n
+           j000000001000000000020000000003000000004000000000j\n
+           k000000001000000000020000000003000000004000000000k\n
+           l000000001000000000020000000003000000004000000000l\n
+           m000000001000000000020000000003000000004000000000m\n
+           n000000001000000000020000000003000000004000000000n\n
+           o000000001000000000020000000003000000004000000000o\n
+           p000000001000000000020000000003000000004000000000p\n
+           q000000001000000000020000000003000000004000000000q\n
+           r000000001000000000020000000003000000004000000000r\n
+           s000000001000000000020000000003000000004000000000s\n
+           t000000001000000000020000000003000000004000000000t\n
+           u000000001000000000020000000003000000004000000000u\n
+           v000000001000000000020000000003000000004000000000v\n
+           w000000001000000000020000000003000000004000000000w\n
+           x000000001000000000020000000003000000004000000000x
+           
+           
+        .......................................................
+	a00000000  Axe   S   SS   NG    SSN   GL   RL   LG\n
+	=========[===][===][===][===]=[===][===][===][===]\n
+	accuracy01000000000020000000003000000004000000000c\n
+	time000001000000000020000000003000000004000000000d\n
+	dmg taken1000000000020000000003000000004000000000f\n
+	dmg done01000000000020000000003000000004000000000g\n
+	ammo   001000000000020000000003000000004000000000r\n
+	q000000001000000000020000000003000000004000000000q\n
+	n0000000010000  quad    ring  pent  mega 00000000n\n
+	===============[===]===[===]=[===]=[===]==========\n	
+	powerup count000000020000000003000000004000000000m\n
+	poweruptime00000000020000000003000000004000000000k\n
+	o000000001000000000020000000003000000004000000000o\n
+	avg life time000000020000000003000000004000000000l\n	
+	k/d ratio:[000]0000020000000003000000004000000000e\n
+	h000000001000000000020000000003000000004000000000i\n
+	dist travelled0000002000000water time:04000000000h\n	
+	dmg ratio1000000000020000000003000000004000000000j\n
+	s000000001000000000020000000003000000004000000000s\n
+	t000000001000000000020000000003000000004000000000t\n
+	u000000001000000000020000000003000000004000000000u\n
+	v000000001000000000020000000003000000004000000000v\n
+	w000000001000000000020000000003000000004000000000w\n
+           
+           
+           "a000000001000000000020000000003000000004000000000a",
+           "b000000001000000000020000000003000000004000000000b",
+           "c000000001000000000020000000003000000004000000000c",
+           "d000000001000000000020000000003000000004000000000d",
+           "e000000001000000000020000000003000000004000000000e",
+           "f000000001000000000020000000003000000004000000000f",
+           "g000000001000000000020000000003000000004000000000g",
+           "h000000001000000000020000000003000000004000000000h",
+           "i000000001000000000020000000003000000004000000000i",
+           "j000000001000000000020000000003000000004000000000j",
+           "k000000001000000000020000000003000000004000000000k",
+           "l000000001000000000020000000003000000004000000000l",
+           "m000000001000000000020000000003000000004000000000m",
+           "n000000001000000000020000000003000000004000000000n",
+           "o000000001000000000020000000003000000004000000000o",
+           "p000000001000000000020000000003000000004000000000p",
+           "q000000001000000000020000000003000000004000000000q",
+           "r000000001000000000020000000003000000004000000000r",
+           "s000000001000000000020000000003000000004000000000s",
+           "t000000001000000000020000000003000000004000000000t",
+           "u000000001000000000020000000003000000004000000000u",
+           "v000000001000000000020000000003000000004000000000v",
+           "w000000001000000000020000000003000000004000000000w",
+           "x000000001000000000020000000003000000004000000000x",
+           
+	*/
+//centerprint(self.owner,"000000f"      );
+
+
+centerprint(self.owner,  "w000000001000000000020000000003000000004000000000w\n", 
+"v000000001000000000020000000003000000004000", ftos(21.0), "kk" );
+//this sprint doesn't seem to make it to the console... maybe because there isn't a newline char
+//no newlines means the whole screen will fill up...
+//looks like sprint has variable width depending on the horizontal resolution of the window/screen as well
+//I can get 8 lines top to bottom with three sprints - one longer than scrw an ftos and an endline
+//four lines with just ftos and endline or just text with endl
+//i get 20 lines  with a single sprint w four new lines in it / only first is visible in console
+//20 lines game overlay with two sprints one an ftos and the other w/four endls BUT only one (the first) line is visible in the console
+//un lined sprint will slowly fill and go off screen
+// '\0' char seems to make it not rec endline
+//changing resolution will blank scree chars
+// 5 sprints shows in game 4 lines and in console 1st is lost
+//text in console wraps as well and is significantly different for diff resolutions - always seems to print last 4 messages though - even if they aren't in the same func
+//maybe you only get 4 lines per 'think' routine??
+
+        //sprint(self.owner,"000000000100000000002000000000300000000400000000050000000006000000000700000000080000000009");
+        //sprint(self.owner,"0000000001000000000020000000003000000004000000000500000000060000000-0700000000080000000009");
+        //sprint(self.owner,ftos(time));
+        
+        //sprint(self.owner,"1000000000100000000002000000000300000000400000000050000000006000000000700000000080000000009000000000a000000000b000000000c000000000d000000000e\n");
+        //sprint(self.owner,"2000000000100000000002000000000300000000400000000050000000006000000000700000000080000000009000000000a000000000b000000000c000000000d000000000e\n");
+        //sprint(self.owner,"3000000000100000000002000000000300000000400000000050000000006000000000700000000080000000009000000000a000000000b000000000c000000000d000000000e\n");
+        //sprint(self.owner,"4000000000100000000002000000000300000000400000000050000000006000000000700000000080000000009000000000a000000000b000000000c000000000d000000000e\n");
+       // sprint(self.owner,"5000000000100000000002000000000300000000400000000050000000006000000000700000000080000000009000000000a000000000b000000000c000000000d000000000e\n");
+        
+        //sprint(self.owner,"BLAH!\nBLBH!\nBLCH!\nBLDH!\nBLEH!\n");
+        //dprint("000000000100000000002000000000300000000400000000050000000006000000000700000000080000000009");
+        //local float msg_type = MSG_ONE;
+	//msg_entity = self.owner;
+	//WriteByte(msg_type,SVC_PRINT); // SVC_PRINT	
+	//WriteShort(msg_type,3); // '3' is the number of writestrings including args
+	//WriteString(msg_type,"{}\n{}");
+	//WriteString(msg_type,"a000000001000000000020000000003000000004000000000a");
+	//WriteString(msg_type,"b000000001000000000020000000003000000004000000000b");
+
+}
+
 //====================================
 //controller entity stuff
 //====================================
 
-
 void() statsThink=
 {
-	printAll();
+	//sprint(self.owner, ftos(self.owner.impulse));
+		//printLine12(); 		printLine23(); 		printLine45();		printLine69();		printLine10_12();		printLine13_14();		printLine15_17();
+	//sprint(self.owner, "\n");
+	if(self.impulse == 100)
+	{
+
+		//sprint(self.owner,"a1");
+		//printAll();
+		newPrint();//testPrint();
+		self.impulse = 0;
+	}
 	self.think = statsThink;
 	self.nextthink = time + 0.1;
+}
+
+// "do stuff" - right now just react to impulse commands
+//self is expected to be the player/client
+// pattern is copied fromw 'W_WeaponFrame' in client/weapons.qc
+void() statsFrame=
+{
+	if(self.impulse == 100)
+	{
+		self.statsController.impulse = self.impulse;
+		self.impulse = 0;
+	}
 }
 
 void() spawnStatsController=

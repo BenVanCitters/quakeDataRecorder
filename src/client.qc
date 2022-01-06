@@ -1137,11 +1137,12 @@ Called every frame after physics are run
 */
 void() PlayerPostThink =
 {
-
+	statsFrame();
 	if (self.view_ofs == '0 0 0')
 		return;		// intermission or finale
 	if (self.deadflag)
 		return;
+
 
 // do weapon stuff
 
