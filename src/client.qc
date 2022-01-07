@@ -1202,6 +1202,7 @@ called when a player disconnects from a server
 */
 void() ClientDisconnect =
 {
+	
 	if (gameover)
 		return;
 	// if the level end trigger has been activated, just return
@@ -1214,6 +1215,7 @@ void() ClientDisconnect =
 	bprint (" frags\n");
 	sound (self, CHAN_BODY, "player/tornoff2.wav", 1, ATTN_NONE);
 	set_suicide_frame ();
+	oneLineJSON(self.statsController,MSG_ONE);
 };
 
 /*
