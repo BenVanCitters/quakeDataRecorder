@@ -151,6 +151,7 @@ entity() FindIntermission =
 string nextmap;
 void() GotoNextMap =
 {
+	{printAllPlayerJSONs();}
 	if (cvar("samelevel"))	// if samelevel is set, stay on same level
 		changelevel (mapname);
 	else
@@ -620,6 +621,7 @@ only called if a time or frag limit has expired
 */
 void() NextLevel =
 {
+	{printAllPlayerJSONs();}
 	local entity o;
 
 	if (mapname == "start")

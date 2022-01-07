@@ -345,6 +345,9 @@ void() T_MissileTouch =
 
 	if (pointcontents(self.origin) == CONTENT_SKY)
 	{
+		if(self.owner.classname == "player")
+		{record_stat_recordAirBall(self.owner.statsController);}
+		
 		remove(self);
 		return;
 	}

@@ -830,7 +830,7 @@ s*/
 	//WriteByte(msg_type,SVC_CENTERPRINT); // SVC_PRINT	
 	WriteShort(msg_type,55); 
 	WriteString(msg_type,
-		"Player Report: {}\n           Axe   S   SS   NG    SSN   GL   RL   LG\n         =========================================\n%{}%{}%{}%  {}% {}% {}%{}% {}%\ntime    {} {} {} {}  {} {} {} {}\ndmg taken   {}   {}   {}    {}    {}    {}    {}   {}\ndmg done {} {} {} {} {} {} {} {}\ntotal shells: {} nails: {} rockets: {} cells: {} \n\n                Quad  Ring  Pent  Mega            \n               ========================           \npowerup count: {} {} {} {}            \npoweruptime:   {} {} {}                  \n\nk/d ratio:{}/{}  avg life time: {}            \nkills per minute: {}         airballs: {}                \n\ndist travelled: {}      Water time: {}      \ndmg ratio:      {} = {}/{}             \n");
+		"Player Report: {}\n           Axe   S   SS   NG    SSN   GL   RL   LG\n         =========================================\naccuracy   {}%  {}%  {}%   {}%   {}%   {}%   {}%  {}%\ntime    {} {} {} {}  {} {} {} {}\ndmg taken   {}   {}   {}    {}      {}     {}     {}    {}\ndmg done    {}   {}   {}    {}      {}     {}     {}    {}\n\ntotal shells: {} nails: {} rockets: {} cells: {} \n\n                Quad  Ring  Pent  Mega            \n               ========================           \npowerup count:  {}     {}     {}     {}            \npoweruptime:   {} {} {}                  \n\nk/d ratio:{}/{}  avg life time: {}            \nkills per minute: {}         airballs: {}                \n\ndist travelled: {}      Water time: {}      \ndmg ratio:      {} = {}/{}             \n");
 
 	WriteString(msg_type, self.owner.netname );//player name
 	
@@ -891,7 +891,7 @@ s*/
 	//random	
 	WriteString(msg_type, roundedStr(self.kills));// K/d
 	WriteString(msg_type, roundedStr(self.times_died));// k/D
-	WriteString(msg_type, spacedfloat(self.alive_time / (0.0001+self.times_died)));// avg life time
+	WriteString(msg_type, spacedfloat(self.alive_time / (1+self.times_died)));// avg life time
 	local float killsPerMinute = self.kills/(0.0001+self.alive_time/60.0);
 	WriteString(msg_type, spacedfloat(killsPerMinute));// kills per minute
 	WriteString(msg_type, roundedStr(self.airballs));//	airballs
@@ -1052,34 +1052,36 @@ void() printOneCR={
 }
 
 //print all stats in a json-like way
-void() oneLineJSON=
+void(entity statsController, float msg_type) oneLineJSON=
 {
+	local entity sc = statsController; //shorter name
 	local float print_type = SVC_PRINT;
-	local float killsPerMinute = self.kills/(self.alive_time/60.0);	
+	local float killsPerMinute = sc.kills/(sc.alive_time/60.0);	
 	
-	local float dealt = getTotalDamageDealt( self );
-	local float received = getTotalDamageReceived( self );	
-	local float ttlShotsFired = getTotalShotsFired( self );
-	local float ttlShotsHit = getTotalShotsHit( self );
+	local float dealt = getTotalDamageDealt( sc );
+	local float received = getTotalDamageReceived( sc );	
+	local float ttlShotsFired = getTotalShotsFired( sc );
+	local float ttlShotsHit = getTotalShotsHit( sc );
 	
-	local float msg_type = MSG_ONE;
-	msg_entity = self.owner;
+	//local float msg_type = MSG_ONE;
+	if(msg_type == MSG_ONE)
+		msg_entity = sc.owner;
 	
 	WriteByte(msg_type, print_type); 
 	WriteShort(msg_type, 14);
 	local string json_random = "{{\"playerName\":\"{}\",\"mapName\":\"{}\",\"distance_travelled\":\"{}\",\"times_died\":\"{}\",\"kills\":\"{}\",\"suicides\":\"{}\",\"alive_time\":\"{}\",\"water_time\":\"{}\",\"health_collected\":\"{}\",\"killDeathratio\":\"{}\",\"avgLifeSpan\":\"{}\",\"killsPerMinute\":\"{}\",\"dmgGivenTakenRatio\":\"{}\",";
 	WriteString(msg_type, json_random );//json
-	WriteString(msg_type, self.owner.netname );//player name
+	WriteString(msg_type, sc.owner.netname );//player name
 	WriteString(msg_type, mapname );//player name
-	WriteString(msg_type, spacedfloat( self.distance_travelled ) );//dist travelled
-	WriteString(msg_type, roundedStr(self.times_died));// k/D
-	WriteString(msg_type, roundedStr(self.kills));// K/d
-	WriteString(msg_type, roundedStr(self.suicides));// suicides
-	WriteString(msg_type, spacedfloat(self.alive_time));// kills per minute
-	WriteString(msg_type, spacedfloat( self.water_time));//Water time
-	WriteString(msg_type, spacedfloat( self.health_collected) );//Water time
-	WriteString(msg_type, roundedStr(self.kills/(self.times_died+0.0001) ) );// k/D
-	WriteString(msg_type, spacedfloat(self.alive_time / (self.times_died+0.0001)));// avg life time
+	WriteString(msg_type, spacedfloat( sc.distance_travelled ) );//dist travelled
+	WriteString(msg_type, roundedStr( sc.times_died));// k/D
+	WriteString(msg_type, roundedStr( sc.kills));// K/d
+	WriteString(msg_type, roundedStr( sc.suicides));// suicides
+	WriteString(msg_type, spacedfloat( sc.alive_time));// kills per minute
+	WriteString(msg_type, spacedfloat(  sc.water_time));//Water time
+	WriteString(msg_type, spacedfloat(  sc.health_collected) );//Water time
+	WriteString(msg_type, roundedStr( sc.kills/( sc.times_died+0.0001) ) );// k/D
+	WriteString(msg_type, spacedfloat( sc.alive_time / ( sc.times_died+0.0001)));// avg life time
 	WriteString(msg_type, spacedfloat(killsPerMinute));// kills per minute
 	WriteString(msg_type, spacedfloat( dealt / (received +0.0001) ) ); //dmg ratio
 	
@@ -1087,72 +1089,72 @@ void() oneLineJSON=
 	WriteShort(msg_type, 5);
 	local string json_ammo= "\"ammo_collected\":{{\"shells_collected\":\"{}\",\"nails_collected\":\"{}\",\"rockets_collected\":\"{}\",\"cells_collected\":\"{}\"}},";
 	WriteString(msg_type, json_ammo );//json
-	WriteString(msg_type, roundedStr(self.shells_collected));//dbl shot//ammo
-	WriteString(msg_type, roundedStr(self.nails_collected));//nail
-	WriteString(msg_type, roundedStr(self.rockets_collected));//rock
-	WriteString(msg_type, roundedStr(self.cells_collected));//lightning
+	WriteString(msg_type, roundedStr( sc.shells_collected));//dbl shot//ammo
+	WriteString(msg_type, roundedStr( sc.nails_collected));//nail
+	WriteString(msg_type, roundedStr( sc.rockets_collected));//rock
+	WriteString(msg_type, roundedStr( sc.cells_collected));//lightning
 	
 	WriteByte(msg_type, print_type);
 	WriteShort(msg_type, 8);	
 	local string json_powerups = "\"powerups\":{{\"quad_time\":\"{}\",\"ring_time\":\"{}\",\"pent_time\":\"{}\",\"ring_collected\":\"{}\",\"quads_collected\":\"{}\",\"pent_collected\":\"{}\",\"super_health_collected\":\"{}\"}},";
 	WriteString(msg_type, json_powerups );//json		
-	WriteString(msg_type, spacedfloat(self.quad_time));//quad //powerups	//time	
-	WriteString(msg_type, spacedfloat(self.ring_time));//ring
-	WriteString(msg_type, spacedfloat(self.pent_time));//pent
-	WriteString(msg_type, roundedStr(self.quads_collected));//quad //count
-	WriteString(msg_type, roundedStr(self.ring_collected));//ring
-	WriteString(msg_type, roundedStr(self.pent_collected));//pent
-	WriteString(msg_type, roundedStr(self.super_health_collected));//mega
+	WriteString(msg_type, spacedfloat( sc.quad_time));//quad //powerups	//time	
+	WriteString(msg_type, spacedfloat( sc.ring_time));//ring
+	WriteString(msg_type, spacedfloat( sc.pent_time));//pent
+	WriteString(msg_type, roundedStr( sc.quads_collected));//quad //count
+	WriteString(msg_type, roundedStr( sc.ring_collected));//ring
+	WriteString(msg_type, roundedStr( sc.pent_collected));//pent
+	WriteString(msg_type, roundedStr( sc.super_health_collected));//mega
 	
 	WriteByte(msg_type, print_type); 
 	WriteShort(msg_type, 4);	
 	local string json_armor = "\"armor\":{{\"green_armors_collected\":\"{}\",\"yellow_armors_collected\":\"{}\",\"red_armors_collected\":\"{}\"}},";
 	WriteString(msg_type, json_armor);
-	WriteString(msg_type, roundedStr(self.green_armors_collected));//green //armor
-	WriteString(msg_type, roundedStr(self.yellow_armors_collected));//yellow
-	WriteString(msg_type, roundedStr(self.red_armors_collected));//red
+	WriteString(msg_type, roundedStr( sc.green_armors_collected));//green //armor
+	WriteString(msg_type, roundedStr( sc.yellow_armors_collected));//yellow
+	WriteString(msg_type, roundedStr( sc.red_armors_collected));//red
 	
 	WriteByte(msg_type, print_type); 
 	WriteShort(msg_type, 10);	
 	local string json_dmgDealt = "\"damageDealt\":{{\"axe_damage_dealt\":\"{}\",\"shotgun_damage_dealt\":\"{}\",\"sshotgun_damage_dealt\":\"{}\",\"nailgun_damage_dealt\":\"{}\",\"snailgun_damage_dealt\":\"{}\",\"grenade_damage_dealt\":\"{}\",\"rocket_damage_dealt\":\"{}\",\"lightning_damage_dealt\":\"{}\",\"totalDamageDone\":{}}},";
 	WriteString(msg_type, json_dmgDealt);
-	WriteString(msg_type, roundedStr(self.axe_damage_dealt));//axe //dmg done
-	WriteString(msg_type, roundedStr(self.shotgun_damage_dealt));//shotgun
-	WriteString(msg_type, roundedStr(self.sshotgun_damage_dealt));//dbl shot
-	WriteString(msg_type, roundedStr(self.nailgun_damage_dealt));//nail
-	WriteString(msg_type, roundedStr(self.snailgun_damage_dealt));//super nail
-	WriteString(msg_type, roundedStr(self.grenade_damage_dealt));//grenade	
-	WriteString(msg_type, roundedStr(self.rocket_damage_dealt));//rock
-	WriteString(msg_type, roundedStr(self.lightning_damage_dealt));//lightning	
+	WriteString(msg_type, roundedStr( sc.axe_damage_dealt));//axe //dmg done
+	WriteString(msg_type, roundedStr( sc.shotgun_damage_dealt));//shotgun
+	WriteString(msg_type, roundedStr( sc.sshotgun_damage_dealt));//dbl shot
+	WriteString(msg_type, roundedStr( sc.nailgun_damage_dealt));//nail
+	WriteString(msg_type, roundedStr( sc.snailgun_damage_dealt));//super nail
+	WriteString(msg_type, roundedStr( sc.grenade_damage_dealt));//grenade	
+	WriteString(msg_type, roundedStr( sc.rocket_damage_dealt));//rock
+	WriteString(msg_type, roundedStr( sc.lightning_damage_dealt));//lightning	
 	WriteString(msg_type, roundedStr( dealt ));               //total dmg done
 	
 	WriteByte(msg_type, print_type); 
 	WriteShort(msg_type, 11);	
 	local string json_dmgTaken = "\"damageTaken\":{{\"axe_damage_taken\":\"{}\",\"shotgun_damage_taken\":\"{}\",\"sshotgun_damage_taken\":\"{}\",\"nailgun_damage_taken\":\"{}\",\"snailgun_damage_taken\":\"{}\",\"grenade_damage_taken\":\"{}\",\"rocket_damage_taken\":\"{}\",\"lightning_damage_taken\":\"{}\",\"other_damage_taken\":\"{}\",\"totalDamageTaken\":{}}},";
 	WriteString(msg_type, json_dmgTaken);
-	WriteString(msg_type, roundedStr(self.axe_damage_taken));//axe //dmg taken
-	WriteString(msg_type, roundedStr(self.shotgun_damage_taken));//shotgun
-	WriteString(msg_type, roundedStr(self.sshotgun_damage_taken));//dbl shot
-	WriteString(msg_type, roundedStr(self.nailgun_damage_taken));//nail
-	WriteString(msg_type, roundedStr(self.snailgun_damage_taken));//super nail
-	WriteString(msg_type, roundedStr(self.grenade_damage_taken));//grenade
-	WriteString(msg_type, roundedStr(self.rocket_damage_taken));//rock
-	WriteString(msg_type, roundedStr(self.lightning_damage_taken));//lightning
-	WriteString(msg_type, roundedStr(self.other_damage_taken));//other
+	WriteString(msg_type, roundedStr( sc.axe_damage_taken));//axe //dmg taken
+	WriteString(msg_type, roundedStr( sc.shotgun_damage_taken));//shotgun
+	WriteString(msg_type, roundedStr( sc.sshotgun_damage_taken));//dbl shot
+	WriteString(msg_type, roundedStr( sc.nailgun_damage_taken));//nail
+	WriteString(msg_type, roundedStr( sc.snailgun_damage_taken));//super nail
+	WriteString(msg_type, roundedStr( sc.grenade_damage_taken));//grenade
+	WriteString(msg_type, roundedStr( sc.rocket_damage_taken));//rock
+	WriteString(msg_type, roundedStr( sc.lightning_damage_taken));//lightning
+	WriteString(msg_type, roundedStr( sc.other_damage_taken));//other
 	WriteString(msg_type, roundedStr( received )); //total dmg received
 	
 	WriteByte(msg_type, print_type); 
 	WriteShort(msg_type, 10);	
 	local string json_shotFired = "\"shotsFired\":{{\"axe_shots_fired\":\"{}\",\"shotgun_shots_fired\":\"{}\",\"sshotgun_shots_fired\":\"{}\",\"nailgun_shots_fired\":\"{}\",\"snailgun_shots_fired\":\"{}\",\"grenade_shots_fired\":\"{}\",\"rocket_shots_fired\":\"{}\",\"lightning_shots_fired\":\"{}\",\"totalShotsFired\":\"{}\"}},";	
 	WriteString(msg_type, json_shotFired);	
-	WriteString(msg_type, roundedStr( self.axe_shots_fired) );//axe//fired
-	WriteString(msg_type, roundedStr( self.shotgun_shots_fired) );//shotgun
-	WriteString(msg_type, roundedStr( self.sshotgun_shots_fired) );//dbl shot
-	WriteString(msg_type, roundedStr( self.nailgun_shots_fired) );//nail
-	WriteString(msg_type, roundedStr( self.snailgun_shots_fired) );//super nail
-	WriteString(msg_type, roundedStr( self.grenade_shots_fired) );//grenade
-	WriteString(msg_type, roundedStr( self.rocket_shots_fired) );//rock
-	WriteString(msg_type, roundedStr( self.lightning_shots_fired) );//lightning
+	WriteString(msg_type, roundedStr(  sc.axe_shots_fired) );//axe//fired
+	WriteString(msg_type, roundedStr(  sc.shotgun_shots_fired) );//shotgun
+	WriteString(msg_type, roundedStr(  sc.sshotgun_shots_fired) );//dbl shot
+	WriteString(msg_type, roundedStr(  sc.nailgun_shots_fired) );//nail
+	WriteString(msg_type, roundedStr(  sc.snailgun_shots_fired) );//super nail
+	WriteString(msg_type, roundedStr(  sc.grenade_shots_fired) );//grenade
+	WriteString(msg_type, roundedStr(  sc.rocket_shots_fired) );//rock
+	WriteString(msg_type, roundedStr(  sc.lightning_shots_fired) );//lightning
 	WriteString(msg_type, roundedStr( ttlShotsFired) );//total
 	
 	
@@ -1160,14 +1162,14 @@ void() oneLineJSON=
 	WriteShort(msg_type,10);	
 	local string json_shotsHit = "\"shotsHit\":{{\"axe_shots_hits\":\"{}\",\"shotgun_shots_hits\":\"{}\",\"sshotgun_shots_hits\":\"{}\",\"nailgun_shots_hits\":\"{}\",\"snailgun_shots_hits\":\"{}\",\"grenade_shots_hits\":\"{}\",\"rocket_shots_hits\":\"{}\",\"lightning_shots_hits\":\"{}\",\"totalShotsHit\":\"{}\"}},";
 	WriteString(msg_type, json_shotsHit);
-	WriteString(msg_type, roundedStr(self.axe_shots_hits) );//axe//hit
-	WriteString(msg_type, roundedStr(self.shotgun_shots_hits) );//shotgun
-	WriteString(msg_type, roundedStr(self.sshotgun_shots_hits) );//dbl shot
-	WriteString(msg_type, roundedStr(self.nailgun_shots_hits) );//nail
-	WriteString(msg_type, roundedStr(self.snailgun_shots_hits) );//super nail
-	WriteString(msg_type, roundedStr(self.grenade_shots_hits) );//grenade
-	WriteString(msg_type, roundedStr(self.rocket_shots_hits) );//rock
-	WriteString(msg_type, roundedStr(self.lightning_shots_hits) );//lightning
+	WriteString(msg_type, roundedStr( sc.axe_shots_hits) );//axe//hit
+	WriteString(msg_type, roundedStr( sc.shotgun_shots_hits) );//shotgun
+	WriteString(msg_type, roundedStr( sc.sshotgun_shots_hits) );//dbl shot
+	WriteString(msg_type, roundedStr( sc.nailgun_shots_hits) );//nail
+	WriteString(msg_type, roundedStr( sc.snailgun_shots_hits) );//super nail
+	WriteString(msg_type, roundedStr( sc.grenade_shots_hits) );//grenade
+	WriteString(msg_type, roundedStr( sc.rocket_shots_hits) );//rock
+	WriteString(msg_type, roundedStr( sc.lightning_shots_hits) );//lightning
 	WriteString(msg_type, roundedStr(ttlShotsHit) );//total
 	
 	
@@ -1175,35 +1177,47 @@ void() oneLineJSON=
 	WriteShort(msg_type,9);	
 	local string json_weaponHoldTime = "\"weaponHoldTime\":{{\"axe_time\":\"{}\",\"shotgun_time\":\"{}\",\"sshotgun_time\":\"{}\",\"nailgun_time\":\"{}\",\"snailgun_time\":\"{}\",\"grenade_time\":\"{}\",\"rocket_time\":\"{}\",\"lightning_time\":\"{}\"}},";
 	WriteString(msg_type, json_weaponHoldTime);
-	WriteString(msg_type, spacedfloat(self.axe_time ));//axe//time
-	WriteString(msg_type, spacedfloat(self.shotgun_time));//shotgun
-	WriteString(msg_type, spacedfloat(self.sshotgun_time));//dbl shot
-	WriteString(msg_type, spacedfloat(self.nailgun_time));//nail
-	WriteString(msg_type, spacedfloat(self.snailgun_time));//super nail
-	WriteString(msg_type, spacedfloat(self.grenade_time));//grenade
-	WriteString(msg_type, spacedfloat(self.rocket_time));//rock
-	WriteString(msg_type, spacedfloat(self.lightning_time));//lightning
+	WriteString(msg_type, spacedfloat( sc.axe_time ));//axe//time
+	WriteString(msg_type, spacedfloat( sc.shotgun_time));//shotgun
+	WriteString(msg_type, spacedfloat( sc.sshotgun_time));//dbl shot
+	WriteString(msg_type, spacedfloat( sc.nailgun_time));//nail
+	WriteString(msg_type, spacedfloat( sc.snailgun_time));//super nail
+	WriteString(msg_type, spacedfloat( sc.grenade_time));//grenade
+	WriteString(msg_type, spacedfloat( sc.rocket_time));//rock
+	WriteString(msg_type, spacedfloat( sc.lightning_time));//lightning
 	
 	
 	WriteByte(msg_type, print_type); 
 	WriteShort(msg_type,10);	
 	local string json_accuracy = "\"accuracy\":{{\"axe_shots_acc\":\"{}\",\"shotgun_shots_acc\":\"{}\",\"sshotgun_shots_acc\":\"{}\",\"nailgun_shots_acc\":\"{}\",\"snailgun_shots_acc\":\"{}\",\"grenade_shots_acc\":\"{}\",\"rocket_shots_acc\":\"{}\",\"lightning_shots_acc\":\"{}\",\"totalAcc\":\"{}\"}}}}\n";
 	WriteString(msg_type, json_accuracy);
-	WriteString(msg_type, getAcu( self.axe_shots_hits, self.axe_shots_fired) );//axe //shots
-	WriteString(msg_type, getAcu( self.shotgun_shots_hits, self.shotgun_shots_fired) );//shotgun
-	WriteString(msg_type, getAcu( self.sshotgun_shots_hits, self.sshotgun_shots_fired) );//dbl shot
-	WriteString(msg_type, getAcu( self.nailgun_shots_hits, self.nailgun_shots_fired) );//nail
-	WriteString(msg_type, getAcu( self.snailgun_shots_hits, self.snailgun_shots_fired) );//super nail
-	WriteString(msg_type, getAcu( self.grenade_shots_hits, self.grenade_shots_fired) );//grenade
-	WriteString(msg_type, getAcu( self.rocket_shots_hits, self.rocket_shots_fired) );//rock
-	WriteString(msg_type, getAcu( self.lightning_shots_hits, self.lightning_shots_fired) );//lightning
+	WriteString(msg_type, getAcu(  sc.axe_shots_hits,  sc.axe_shots_fired) );//axe //shots
+	WriteString(msg_type, getAcu(  sc.shotgun_shots_hits,  sc.shotgun_shots_fired) );//shotgun
+	WriteString(msg_type, getAcu(  sc.sshotgun_shots_hits,  sc.sshotgun_shots_fired) );//dbl shot
+	WriteString(msg_type, getAcu(  sc.nailgun_shots_hits,  sc.nailgun_shots_fired) );//nail
+	WriteString(msg_type, getAcu(  sc.snailgun_shots_hits,  sc.snailgun_shots_fired) );//super nail
+	WriteString(msg_type, getAcu(  sc.grenade_shots_hits,  sc.grenade_shots_fired) );//grenade
+	WriteString(msg_type, getAcu(  sc.rocket_shots_hits,  sc.rocket_shots_fired) );//rock
+	WriteString(msg_type, getAcu(  sc.lightning_shots_hits,  sc.lightning_shots_fired) );//lightning
 	WriteString(msg_type, getAcu( ttlShotsHit, ttlShotsFired) );//TOTAL	
 	
 	//try to clear out the player screen...
 	//local entity statPrinter = spawn();
 	//statPrinter.think = printOneCR;
 	//statPrinter.nextthink = time + .1; //wait .1 seconds...
-	//statPrinter.owner = self.owner;
+	//statPrinter.owner = sc.owner;
+}
+
+void() printAllPlayerJSONs=
+{
+	local entity pl;
+	pl = find (world, classname, "player");
+	while (pl != world)
+	{
+		oneLineJSON(pl.statsController,MSG_ALL);
+		bprint(pl.netname);
+		pl = find (pl, classname, "player");
+	}
 }
 
 //====================================
@@ -1215,7 +1229,7 @@ void() statsThink=
 	
 	if(self.impulse == 100)
 	{
-		//oneLineJSON();
+		//oneLineJSON(self,msgone);
 		//spawn an entity whose sole purpose is to print stats out line by line to the console!
 		//local entity statPrinter = spawn();
 		//statPrinter.printLineNum = 0;

@@ -191,6 +191,8 @@ void(entity targ, entity inflictor, entity attacker, float damage) T_Damage=
 		{ record_stat_recordDied(targ.statsController); }
 		if(attacker_is_player)
 		{ record_stat_recordKill(attacker.statsController); }
+		if(targ_is_player && attacker_is_player)
+		{record_stat_recordSuicide(attacker.statsController);}
 		return;
 	}
 
