@@ -2,10 +2,15 @@
 example of player data analytics 
 A example pattern for how player stats like kills to deaths ('k/d ratio') or accuracy or favorite weapon can be determined.
 
+stats are shown via 'impulse 100' in game
+
+JSON output is printed to the in-game console at the end of multiplayer games
+
 ## Currently included records
 
 **WEAPONS/DAMAGE**
 *  Total death count
+*  suicide count
 *  Total kill count
 *  Damage dealt with each weapon (axe-lightning gun)
 *  Damage received from each weapon (axe-lightning gun)
@@ -13,6 +18,7 @@ A example pattern for how player stats like kills to deaths ('k/d ratio') or acc
 *  Individuialized number of times the player fired weapons (axe-lightning gun)
 *  Individuialized number of times the player scored hits with each weapons (axe-lightning gun) 
 *  Duration of time the player had each weapon selected
+*  Kills per minute, avg. life span, K/D ratio, etc
 
 **ITEMS**
 *  Individual amounts of ammo collected (shells, nails, rockets, cells)
